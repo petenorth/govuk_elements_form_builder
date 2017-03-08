@@ -172,4 +172,19 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
     end
   end
 
+  context 'recursion' do
+
+
+    let(:resource) do
+      kase = Case.new
+      kase.state_machine = StateMachine.new(object: kase)
+      kase.valid?
+      kase
+    end
+
+    it 'handles objects which contain objects with references to themselves' do
+      puts pretty_output
+    end
+  end
+
 end
