@@ -1,6 +1,7 @@
 # coding: utf-8
 require 'rails_helper'
 require 'spec_helper'
+require 'pry'
 
 class TestHelper < ActionView::Base; end
 
