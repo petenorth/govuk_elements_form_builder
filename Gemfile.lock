@@ -181,6 +181,7 @@ DEPENDENCIES
   govuk_elements_form_builder!
   guard-rspec
   htmlbeautifier
+  pry
   rspec-html-matchers
   rspec-rails
   sqlite3
