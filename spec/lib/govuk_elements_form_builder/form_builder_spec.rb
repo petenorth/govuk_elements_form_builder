@@ -274,6 +274,10 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
     include_examples 'input field', :url_field, :url
   end
 
+  describe '#file_field' do
+    include_examples 'input field', :file_field, :file
+  end
+
   describe '#radio_button_fieldset' do
     let(:pretty_output) { HtmlBeautifier.beautify output }
 
