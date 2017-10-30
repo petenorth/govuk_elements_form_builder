@@ -24,6 +24,7 @@ module GovukElementsFormBuilder
       text_area
       text_field
       url_field
+      file_field
     ].each do |method_name|
       define_method(method_name) do |attribute, *args|
         content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
