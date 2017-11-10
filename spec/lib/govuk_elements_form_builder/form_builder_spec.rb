@@ -339,6 +339,61 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       ]
     end
 
+    it 'outputs markup with support for revealing panels' do
+      output = builder.radio_button_fieldset :location do |fieldset|
+        fieldset.radio_input(:england)
+        fieldset.radio_input(:other) {
+          fieldset.text_field :location_other
+        }
+      end
+
+      expect_equal output, [
+      '<div class="form-group">',
+        '<fieldset>',
+        '<legend>',
+        '<span class="form-label-bold">',
+        'Where do you live?',
+        '</span>',
+        '<span class="form-hint">',
+        'Select from these options because you answered you do not reside in England, Wales, or Scotland',
+        '</span>',
+        '</legend>',
+        '<div class="multiple-choice">',
+        '<input type="radio" value="england" name="person[location]" id="person_location_england" />',
+        '<label for="person_location_england">',
+        'England',
+        '</label>',
+        '</div>',
+        '<div class="multiple-choice" data-target="location_other_panel">',
+        '<input type="radio" value="other" name="person[location]" id="person_location_other" />',
+        '<label for="person_location_other">',
+        'Other location',
+        '</label>',
+        '</div>',
+        '<div class="panel panel-border-narrow js-hidden" id="location_other_panel">',
+        '<div class="form-group">',
+        '<label class="form-label" for="person_location_other">',
+        'Please enter your location',
+        '</label>',
+        '<input class="form-control" type="text" name="person[location_other]" id="person_location_other" />',
+        '</div>',
+        '</div>',
+        '</fieldset>',
+        '</div>'
+      ]
+    end
+
+    it 'outputs markup with support for revealing panels with specific ID' do
+      output = builder.radio_button_fieldset :location do |fieldset|
+        fieldset.radio_input(:england)
+        fieldset.radio_input(:other, panel_id: 'another_location_input') {
+          fieldset.text_field :location_other
+        }
+      end
+
+      expect(output).to match(/<div class="multiple-choice" data-target="another_location_input">/)
+    end
+
     context 'with a couple associated cases' do
       let(:case_1) { Case.new(id: 1, name: 'Case One')  }
       let(:case_2) { Case.new(id: 2, name: 'Case Two')  }
@@ -487,7 +542,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       expect_equal output, [
           '<div class="form-group">',
           '<label class="form-label" for="person_location">',
-          '{:ni=&gt;&quot;Northern Ireland&quot;, :isle_of_man_channel_islands=&gt;&quot;Isle of Man or Channel Islands&quot;, :british_abroad=&gt;&quot;I am a British citizen living abroad&quot;}',
+          '{:ni=&gt;&quot;Northern Ireland&quot;, :isle_of_man_channel_islands=&gt;&quot;Isle of Man or Channel Islands&quot;, :british_abroad=&gt;&quot;I am a British citizen living abroad&quot;, :other=&gt;&quot;Other location&quot;}',
           %'<span class="form-hint">',
           'Select from these options because you answered you do not reside in England, Wales, or Scotland',
           %'</span>',

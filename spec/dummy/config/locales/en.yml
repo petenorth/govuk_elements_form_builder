@@ -39,8 +39,10 @@ en:
           ni: Northern Ireland
           isle_of_man_channel_islands: Isle of Man or Channel Islands
           british_abroad: I am a British citizen living abroad
+          other: Other location
         name: Full name
         ni_number: National Insurance number
+        location_other: Please enter your location
         password: Password
         password_confirmation: Confirm password
       person[address_attributes]:
