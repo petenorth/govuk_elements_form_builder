@@ -92,10 +92,10 @@ module GovukElementsFormBuilder
     def radio_input choice, options = {}, &block
       fieldset_attribute = self.current_fieldset_attribute
 
-      panel = if block_given?
+      panel = if block_given? || options.key?(:panel_id)
         panel_id = options.delete(:panel_id) { [fieldset_attribute, choice, 'panel'].join('_') }
         options.merge!('data-target': panel_id)
-        revealing_panel(panel_id, &block)
+        revealing_panel(panel_id, flush: false, &block) if block_given?
       end
 
       option = radio_inputs(
@@ -104,6 +104,14 @@ module GovukElementsFormBuilder
       ).first + "\n"
 
       safe_concat([option, panel].join)
+    end
+
+    def revealing_panel panel_id, options = {}, &block
+      panel = content_tag(
+        :div, class: 'panel panel-border-narrow js-hidden', id: panel_id
+      ) { block.call(BlockBuffer.new(self)) } + "\n"
+
+      options.fetch(:flush, true) ? safe_concat(panel) : panel
     end
 
     private
@@ -202,12 +210,6 @@ module GovukElementsFormBuilder
       fieldset_options = {}
       fieldset_options[:class] = 'inline' if options[:inline] == true
       fieldset_options
-    end
-
-    def revealing_panel panel_id, &block
-      content_tag(
-        :div, class: 'panel panel-border-narrow js-hidden', id: panel_id
-      ) { block.call } + "\n"
     end
 
     private_class_method def self.add_error_to_html_tag! html_tag, instance
