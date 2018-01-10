@@ -57,14 +57,14 @@ module GovukElementsFormBuilder
       end
     end
 
-    def check_box_fieldset legend_key, attributes, options={}
+    def check_box_fieldset legend_key, attributes, options={}, &block
       content_tag :div,
                   class: form_group_classes(attributes),
                   id: form_group_id(attributes) do
         content_tag :fieldset, fieldset_options(attributes, options) do
           safe_join([
                       fieldset_legend(legend_key),
-                      check_box_inputs(attributes)
+                      block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
                     ], "\n")
         end
       end
@@ -86,7 +86,7 @@ module GovukElementsFormBuilder
     end
 
     # The following method will generate revealing panel markup and internally call the
-    # `radio_inputs` method declared above. It is not intended to be used outside a
+    # `radio_inputs` private method. It is not intended to be used outside a
     # fieldset tag (at the moment, `radio_button_fieldset`).
     #
     def radio_input choice, options = {}, &block
@@ -104,6 +104,22 @@ module GovukElementsFormBuilder
       ).first + "\n"
 
       safe_concat([option, panel].join)
+    end
+
+    # The following method will generate revealing panel markup and internally call the
+    # `check_box_inputs` private method. It is not intended to be used outside a
+    # fieldset tag (at the moment, `check_box_fieldset`).
+    #
+    def check_box_input attribute, options = {}, &block
+      panel = if block_given? || options.key?(:panel_id)
+                panel_id = options.delete(:panel_id) { [attribute, 'panel'].join('_') }
+                options.merge!('data-target': panel_id)
+                revealing_panel(panel_id, flush: false, &block) if block_given?
+              end
+
+      checkbox = check_box_inputs([attribute], options).first + "\n"
+
+      safe_concat([checkbox, panel].join)
     end
 
     def revealing_panel panel_id, options = {}, &block
@@ -149,13 +165,13 @@ module GovukElementsFormBuilder
 
     end
 
-    def check_box_inputs attributes
+    def check_box_inputs attributes, options
       attributes.map do |attribute|
         input = check_box(attribute)
         label = label(attribute) do |tag|
           localized_label("#{attribute}")
         end
-        content_tag :div, class: "multiple-choice" do
+        content_tag :div, {class: 'multiple-choice'}.merge(options.slice(:class, :'data-target')) do
           input + label
         end
       end
