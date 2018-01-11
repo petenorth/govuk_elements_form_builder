@@ -84,36 +84,29 @@ module GovukElementsFormBuilder
 
     private
 
+    # Given an attributes hash that could include any number of arbitrary keys, this method
+    # ensure we merge one or more 'default' attributes into the hash, creating the keys if
+    # don't exist, or merging the defaults if the keys already exists.
+    # It supports strings or arrays as values.
+    #
+    def merge_attributes attributes, default:
+      hash = attributes || {}
+      hash.merge(default) { |_key, oldval, newval| Array(newval) + Array(oldval) }
+    end
+
     def set_field_classes! options
-      text_field_class = "form-control"
-      options[:class] = case options[:class]
-                        when String
-                          [text_field_class, options[:class]]
-                        when Array
-                          options[:class].unshift text_field_class
-                        else
-                          options[:class] = text_field_class
-                        end
+      options ||= {}
+      options.merge!(
+        merge_attributes(options, default: {class: 'form-control'})
+      )
     end
 
     def set_label_classes! options
-      text_field_class = "form-label"
-
-      if options.present? && options[:label_options].present?
-        options[:label_options][:class] = case options[:label_options][:class]
-                                            when String
-                                              [text_field_class, options[:label_options][:class]]
-                                            when Array
-                                              options[:label_options][:class].unshift text_field_class
-                                            else
-                                              options[:label_options][:class] = text_field_class
-                                          end
-      else
-        options ||= {}
-        options[:label_options] ||= {}
-        options[:label_options][:class] = text_field_class
-      end
-
+      options ||= {}
+      options[:label_options] ||= {}
+      options[:label_options].merge!(
+        merge_attributes(options[:label_options], default: {class: 'form-label'})
+      )
     end
 
     def check_box_inputs attributes
@@ -148,7 +141,7 @@ module GovukElementsFormBuilder
         tags = [content_tag(
                   :span,
                   fieldset_text(attribute),
-                  options.fetch(:legend_options, class: 'form-label-bold')
+                  merge_attributes(options[:legend_options], default: {class: 'form-label-bold'})
                 )]
 
         if error_for? attribute
