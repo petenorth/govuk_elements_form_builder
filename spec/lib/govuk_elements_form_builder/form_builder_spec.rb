@@ -329,6 +329,11 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       ]
     end
 
+    it 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
+      output = builder.radio_button_fieldset :has_user_account, inline: true, legend_options: {class: 'visuallyhidden', lang: 'en'}
+      expect(output).to match(/<legend><span class="form-label-bold visuallyhidden" lang="en">/)
+    end
+
     context 'with a couple associated cases' do
       let(:case_1) { Case.new(id: 1, name: 'Case One')  }
       let(:case_2) { Case.new(id: 2, name: 'Case Two')  }
@@ -391,8 +396,11 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
   end
 
   describe '#check_box_fieldset' do
-    it 'outputs checkboxes wrapped in labels' do
+    before do
       resource.waste_transport = WasteTransport.new
+    end
+
+    it 'outputs checkboxes wrapped in labels' do
       output = builder.fields_for(:waste_transport) do |f|
         f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural]
       end
@@ -432,6 +440,12 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       ]
     end
 
+    it 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
+      output = builder.fields_for(:waste_transport) do |f|
+        f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural], legend_options: {class: 'visuallyhidden', lang: 'en'}
+      end
+      expect(output).to match(/<legend><span class="form-label-bold visuallyhidden" lang="en">/)
+    end
   end
 
   describe '#collection_select' do
