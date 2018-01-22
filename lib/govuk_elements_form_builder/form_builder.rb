@@ -5,8 +5,11 @@ module GovukElementsFormBuilder
       add_error_to_html_tag! html_tag, instance
     end
 
-    delegate :content_tag, :tag, :safe_join, to: :@template
+    delegate :content_tag, :tag, :safe_join, :safe_concat, :capture, to: :@template
     delegate :errors, to: :@object
+
+    # Used to propagate the fieldset outer element attribute to the inner elements
+    attr_accessor :current_fieldset_attribute
 
     # Ensure fields_for yields a GovukElementsFormBuilder.
     def fields_for record_name, record_object = nil, fields_options = {}, &block
@@ -41,27 +44,27 @@ module GovukElementsFormBuilder
       end
     end
 
-    def radio_button_fieldset attribute, options={}
+    def radio_button_fieldset attribute, options={}, &block
       content_tag :div,
                   class: form_group_classes(attribute),
                   id: form_group_id(attribute) do
         content_tag :fieldset, fieldset_options(attribute, options) do
           safe_join([
                       fieldset_legend(attribute, options),
-                      radio_inputs(attribute, options)
+                      block_given? ? capture(self, &block) : radio_inputs(attribute, options)
                     ], "\n")
         end
       end
     end
 
-    def check_box_fieldset legend_key, attributes, options={}
+    def check_box_fieldset legend_key, attributes, options={}, &block
       content_tag :div,
                   class: form_group_classes(attributes),
                   id: form_group_id(attributes) do
         content_tag :fieldset, fieldset_options(attributes, options) do
           safe_join([
                       fieldset_legend(legend_key, options),
-                      check_box_inputs(attributes)
+                      block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
                     ], "\n")
         end
       end
@@ -80,6 +83,51 @@ module GovukElementsFormBuilder
         (label+ super(method, collection, value_method, text_method, options , html_options)).html_safe
       end
 
+    end
+
+    # The following method will generate revealing panel markup and internally call the
+    # `radio_inputs` private method. It is not intended to be used outside a
+    # fieldset tag (at the moment, `radio_button_fieldset`).
+    #
+    def radio_input choice, options = {}, &block
+      fieldset_attribute = self.current_fieldset_attribute
+
+      panel = if block_given? || options.key?(:panel_id)
+        panel_id = options.delete(:panel_id) { [fieldset_attribute, choice, 'panel'].join('_') }
+        options.merge!('data-target': panel_id)
+        revealing_panel(panel_id, flush: false, &block) if block_given?
+      end
+
+      option = radio_inputs(
+        fieldset_attribute,
+        options.merge(choices: [choice])
+      ).first + "\n"
+
+      safe_concat([option, panel].join)
+    end
+
+    # The following method will generate revealing panel markup and internally call the
+    # `check_box_inputs` private method. It is not intended to be used outside a
+    # fieldset tag (at the moment, `check_box_fieldset`).
+    #
+    def check_box_input attribute, options = {}, &block
+      panel = if block_given? || options.key?(:panel_id)
+                panel_id = options.delete(:panel_id) { [attribute, 'panel'].join('_') }
+                options.merge!('data-target': panel_id)
+                revealing_panel(panel_id, flush: false, &block) if block_given?
+              end
+
+      checkbox = check_box_inputs([attribute], options).first + "\n"
+
+      safe_concat([checkbox, panel].join)
+    end
+
+    def revealing_panel panel_id, options = {}, &block
+      panel = content_tag(
+        :div, class: 'panel panel-border-narrow js-hidden', id: panel_id
+      ) { block.call(BlockBuffer.new(self)) } + "\n"
+
+      options.fetch(:flush, true) ? safe_concat(panel) : panel
     end
 
     private
@@ -112,13 +160,13 @@ module GovukElementsFormBuilder
       )
     end
 
-    def check_box_inputs attributes
+    def check_box_inputs attributes, options
       attributes.map do |attribute|
         input = check_box(attribute)
         label = label(attribute) do |tag|
           localized_label("#{attribute}")
         end
-        content_tag :div, class: "multiple-choice" do
+        content_tag :div, {class: 'multiple-choice'}.merge(options.slice(:class, :'data-target')) do
           input + label
         end
       end
@@ -137,7 +185,7 @@ module GovukElementsFormBuilder
                       end
                 text
         end
-        content_tag :div, class: "multiple-choice" do
+        content_tag :div, {class: 'multiple-choice'}.merge(options.slice(:class, :'data-target')) do
           input + label
         end
       end
@@ -167,7 +215,9 @@ module GovukElementsFormBuilder
       legend.html_safe
     end
 
-    def fieldset_options attributes, options
+    def fieldset_options attribute, options
+      self.current_fieldset_attribute = attribute
+
       fieldset_options = {}
       fieldset_options[:class] = 'inline' if options[:inline] == true
       fieldset_options

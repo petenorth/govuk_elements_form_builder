@@ -273,6 +273,48 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
     include_examples 'input field', :url_field, :url
   end
 
+  describe '#revealing_panel' do
+    let(:pretty_output) { HtmlBeautifier.beautify output }
+
+    it 'outputs revealing panel markup' do
+      output = builder.radio_button_fieldset :location do |fieldset|
+        fieldset.revealing_panel(:location_panel) do |panel|
+          panel.text_field :location_other
+          panel.text_field :address
+        end
+      end
+
+      expect_equal output, [
+        '<div class="form-group">',
+        '<fieldset>',
+        '<legend>',
+        '<span class="form-label-bold">',
+        'Where do you live?',
+        '</span>',
+        '<span class="form-hint">',
+        'Select from these options because you answered you do not reside in England, Wales, or Scotland',
+        '</span>',
+        '</legend>',
+        '<div class="panel panel-border-narrow js-hidden" id="location_panel">',
+        '<div class="form-group">',
+        '<label class="form-label" for="person_location_other">',
+        'Please enter your location',
+        '</label>',
+        '<input class="form-control" type="text" name="person[location_other]" id="person_location_other" />',
+        '</div>',
+        '<div class="form-group">',
+        '<label class="form-label" for="person_address">',
+        'Address',
+        '</label>',
+        '<input class="form-control" type="text" name="person[address]" id="person_address" />',
+        '</div>',
+        '</div>',
+        '</fieldset>',
+        '</div>'
+      ]
+    end
+  end
+
   describe '#radio_button_fieldset' do
     let(:pretty_output) { HtmlBeautifier.beautify output }
 
@@ -337,6 +379,59 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
         '</fieldset>',
         '</div>'
       ]
+    end
+
+    it 'outputs markup with support for revealing panels' do
+      output = builder.radio_button_fieldset :location do |fieldset|
+        fieldset.radio_input(:england)
+        fieldset.radio_input(:other) {
+          fieldset.text_field :location_other
+        }
+      end
+
+      expect_equal output, [
+      '<div class="form-group">',
+        '<fieldset>',
+        '<legend>',
+        '<span class="form-label-bold">',
+        'Where do you live?',
+        '</span>',
+        '<span class="form-hint">',
+        'Select from these options because you answered you do not reside in England, Wales, or Scotland',
+        '</span>',
+        '</legend>',
+        '<div class="multiple-choice">',
+        '<input type="radio" value="england" name="person[location]" id="person_location_england" />',
+        '<label for="person_location_england">',
+        'England',
+        '</label>',
+        '</div>',
+        '<div class="multiple-choice" data-target="location_other_panel">',
+        '<input type="radio" value="other" name="person[location]" id="person_location_other" />',
+        '<label for="person_location_other">',
+        'Other location',
+        '</label>',
+        '</div>',
+        '<div class="panel panel-border-narrow js-hidden" id="location_other_panel">',
+        '<div class="form-group">',
+        '<label class="form-label" for="person_location_other">',
+        'Please enter your location',
+        '</label>',
+        '<input class="form-control" type="text" name="person[location_other]" id="person_location_other" />',
+        '</div>',
+        '</div>',
+        '</fieldset>',
+        '</div>'
+      ]
+    end
+
+    it 'outputs markup with support for revealing panels with specific ID' do
+      output = builder.radio_button_fieldset :location do |fieldset|
+        fieldset.radio_input(:england)
+        fieldset.radio_input(:other, panel_id: 'another_location_input')
+      end
+
+      expect(output).to match(/<div class="multiple-choice" data-target="another_location_input">/)
     end
 
     it 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
@@ -465,6 +560,85 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       ]
     end
 
+    it 'outputs markup with support for revealing panels' do
+      resource.waste_transport = WasteTransport.new
+      output = builder.fields_for(:waste_transport) do |f|
+        f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural] do |fieldset|
+          fieldset.check_box_input(:animal_carcasses)
+          fieldset.check_box_input(:mines_quarries) { f.text_field :mines_quarries_details }
+          fieldset.check_box_input(:farm_agricultural) { f.text_field :farm_agricultural_details }
+        end
+      end
+
+      expect_equal output, [
+        '<div class="form-group">',
+        '<fieldset>',
+        '<legend>',
+        '<span class="form-label-bold">',
+        'Which types of waste do you transport regularly?',
+        '</span>',
+        '<span class="form-hint">',
+        'Select all that apply',
+        '</span>',
+        '</legend>',
+        '<div class="multiple-choice">',
+        '<input name="person[waste_transport_attributes][animal_carcasses]" type="hidden" value="0" />',
+        '<input type="checkbox" value="1" name="person[waste_transport_attributes][animal_carcasses]" id="person_waste_transport_attributes_animal_carcasses" />',
+        '<label for="person_waste_transport_attributes_animal_carcasses">',
+        'Waste from animal carcasses',
+        '<br>',
+        '<em>',
+        'includes sloths and other Bradypodidae',
+        '</em>',
+        '</label>',
+        '</div>',
+        '<div class="multiple-choice" data-target="mines_quarries_panel">',
+        '<input name="person[waste_transport_attributes][mines_quarries]" type="hidden" value="0" />',
+        '<input type="checkbox" value="1" name="person[waste_transport_attributes][mines_quarries]" id="person_waste_transport_attributes_mines_quarries" />',
+        '<label for="person_waste_transport_attributes_mines_quarries">',
+        'Waste from mines or quarries (&gt; 200 lbs)',
+        '</label>',
+        '</div>',
+        '<div class="panel panel-border-narrow js-hidden" id="mines_quarries_panel">',
+        '<div class="form-group">',
+        '<label class="form-label" for="person_waste_transport_attributes_mines_quarries_details">',
+        'Mines quarries details',
+        '</label>',
+        '<input class="form-control" type="text" name="person[waste_transport_attributes][mines_quarries_details]" id="person_waste_transport_attributes_mines_quarries_details" />',
+        '</div>',
+        '</div>',
+        '<div class="multiple-choice" data-target="farm_agricultural_panel">',
+        '<input name="person[waste_transport_attributes][farm_agricultural]" type="hidden" value="0" />',
+        '<input type="checkbox" value="1" name="person[waste_transport_attributes][farm_agricultural]" id="person_waste_transport_attributes_farm_agricultural" />',
+        '<label for="person_waste_transport_attributes_farm_agricultural">',
+        'Farm or agricultural waste',
+        '</label>',
+        '</div>',
+        '<div class="panel panel-border-narrow js-hidden" id="farm_agricultural_panel">',
+        '<div class="form-group">',
+        '<label class="form-label" for="person_waste_transport_attributes_farm_agricultural_details">',
+        'Farm agricultural details',
+        '</label>',
+        '<input class="form-control" type="text" name="person[waste_transport_attributes][farm_agricultural_details]" id="person_waste_transport_attributes_farm_agricultural_details" />',
+        '</div>',
+        '</div>',
+        '</fieldset>',
+        '</div>'
+      ]
+    end
+
+    it 'outputs markup with support for revealing panels with specific ID' do
+      resource.waste_transport = WasteTransport.new
+      output = builder.fields_for(:waste_transport) do |f|
+        f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries] do |fieldset|
+          fieldset.check_box_input(:animal_carcasses)
+          fieldset.check_box_input(:mines_quarries, panel_id: 'mines_quarries_details_text_field_input')
+        end
+      end
+
+      expect(output).to match(/<div class="multiple-choice" data-target="mines_quarries_details_text_field_input">/)
+    end
+
     it 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
       output = builder.fields_for(:waste_transport) do |f|
         f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural], legend_options: {class: 'visuallyhidden', lang: 'en'}
@@ -502,7 +676,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       expect_equal output, [
           '<div class="form-group">',
           '<label class="form-label" for="person_location">',
-          '{:ni=&gt;&quot;Northern Ireland&quot;, :isle_of_man_channel_islands=&gt;&quot;Isle of Man or Channel Islands&quot;, :british_abroad=&gt;&quot;I am a British citizen living abroad&quot;}',
+          '{:ni=&gt;&quot;Northern Ireland&quot;, :isle_of_man_channel_islands=&gt;&quot;Isle of Man or Channel Islands&quot;, :british_abroad=&gt;&quot;I am a British citizen living abroad&quot;, :other=&gt;&quot;Other location&quot;}',
           %'<span class="form-hint">',
           'Select from these options because you answered you do not reside in England, Wales, or Scotland',
           %'</span>',

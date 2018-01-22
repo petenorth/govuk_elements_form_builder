@@ -6,6 +6,7 @@ class Person
   attr_accessor :email_home
   attr_accessor :has_user_account
   attr_accessor :location
+  attr_accessor :location_other
   attr_accessor :name
   attr_accessor :ni_number
   attr_accessor :password
