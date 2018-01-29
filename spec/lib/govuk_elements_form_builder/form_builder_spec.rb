@@ -488,6 +488,9 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
                        '<span class="error-message">',
                        'Gender is required',
                        '</span>',
+                       '<span class="form-hint">',
+                       'Select from these options',
+                       '</span>',
                        '</legend>',
                        '<div class="multiple-choice">',
                        '<input aria-describedby="error_message_person_gender_yes" type="radio" value="yes" name="person[gender]" id="person_gender_yes" />',
@@ -647,6 +650,106 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
     end
   end
 
+  describe '#collection_radio_button' do
+
+     it 'outputs radio buttons in a stacked layout' do
+       person = Person.new
+       gender_collection = [
+           OpenStruct.new(code: 'M', name: 'Masculine'),
+           OpenStruct.new(code: 'F', name: 'Feminine'),
+           OpenStruct.new(code: 'N', name: 'Neuter')
+       ]
+
+       output = builder.collection_radio_buttons :gender, gender_collection,  :code, :name, {id: 'gender-radio-id'}
+
+       expect_equal output, [
+        '<div class="form-group">',
+        '<fieldset>',
+        '<legend>',
+        '<span class="form-label-bold">',
+        'Gender',
+        '</span>',
+        '<span class="form-hint">',
+        'Select from these options',
+        '</span>',
+        '</legend>',
+        '<div class="multiple-choice">',
+        '<input type="radio" value="M" name="person[gender]" id="person_gender_m" />',
+        '<label for="person_gender_m">',
+        'Masculine',
+        '</label>',
+        '</div>',
+        '<div class="multiple-choice">',
+        '<input type="radio" value="F" name="person[gender]" id="person_gender_f" />',
+        '<label for="person_gender_f">',
+        'Feminine',
+        '</label>',
+        '</div>',
+        '<div class="multiple-choice">',
+        '<input type="radio" value="N" name="person[gender]" id="person_gender_n" />',
+        '<label for="person_gender_n">',
+        'Neuter',
+        '</label>',
+        '</div>',
+        '</fieldset>',
+        '</div>'
+       ]
+     end
+
+  end
+
+
+  describe '#collection_check_boxes' do
+
+    it 'outputs check boxes in a stacked layout' do
+      person = Person.new
+      gender_collection = [
+        OpenStruct.new(code: 'M', name: 'Masculine'),
+        OpenStruct.new(code: 'F', name: 'Feminine'),
+        OpenStruct.new(code: 'N', name: 'Neuter')
+      ]
+
+      output = builder.collection_check_boxes :gender, gender_collection,  :code, :name, {id: 'gender-radio-id'}
+
+      expect_equal output, [
+        '<div class="form-group">',
+        '<fieldset>',
+        '<legend>',
+        '<span class="form-label-bold">',
+        'Gender',
+        '</span>',
+        '<span class="form-hint">',
+        'Select from these options',
+        '</span>',
+        '</legend>',
+        '<div class="multiple-choice">',
+        '<input type="checkbox" value="M" name="person[gender][]" id="person_gender_m" />',
+        '<label for="person_gender_m">',
+        'Masculine',
+        '</label>',
+        '</div>',
+        '<div class="multiple-choice">',
+        '<input type="checkbox" value="F" name="person[gender][]" id="person_gender_f" />',
+        '<label for="person_gender_f">',
+        'Feminine',
+        '</label>',
+        '</div>',
+        '<div class="multiple-choice">',
+        '<input type="checkbox" value="N" name="person[gender][]" id="person_gender_n" />',
+        '<label for="person_gender_n">',
+        'Neuter',
+        '</label>',
+        '</div>',
+        # rails adds this hidden field
+        '<input type="hidden" name="person[gender][]" value="" />',
+        '</fieldset>',
+        '</div>'
+      ]
+    end
+
+  end
+
+
   describe '#collection_select' do
 
     it 'outputs label and input wrapped in div ' do
@@ -656,7 +759,9 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
           '<div class="form-group">',
           '<label class="form-label" for="person_gender">',
           'Gender',
-
+          '<span class="form-hint">',
+          'Select from these options',
+          '</span>',
           '</label>',
           %'<select class="form-control" name="person[gender]" id="person_gender">',
           %'<option value="male">',
@@ -699,6 +804,9 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
           '<div class="form-group">',
           '<label class="form-label" for="person_gender">',
           'Gender',
+          '<span class="form-hint">',
+          'Select from these options',
+          '</span>',
           '</label>',
           %'<select class="form-control my-custom-style" name="person[gender]" id="person_gender">',
           %'<option value="male">',
@@ -718,6 +826,9 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
           '<div class="form-group">',
           '<label class="form-label" for="person_gender">',
           'Gender',
+          '<span class="form-hint">',
+          'Select from these options',
+          '</span>',
           '</label>',
           %'<select class="form-control my-custom-style" name="person[gender]" id="person_gender">',
           %'<option value="">',

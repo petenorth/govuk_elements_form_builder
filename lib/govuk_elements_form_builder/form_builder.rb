@@ -82,7 +82,45 @@ module GovukElementsFormBuilder
 
         (label+ super(method, collection, value_method, text_method, options , html_options)).html_safe
       end
+    end
 
+    def collection_check_boxes  method, collection, value_method, text_method, options = {}, *args
+      content_tag :div,
+                  class: form_group_classes(method),
+                  id: form_group_id(method) do
+        content_tag :fieldset, fieldset_options(method, options) do
+          legend_key = method
+          legend = fieldset_legend(legend_key, options)
+
+          collection =  super(method, collection, value_method, text_method, options) do |b|
+                          content_tag :div, class: "multiple-choice" do
+                            b.check_box + b.label
+                          end
+                        end
+
+          (legend + collection).html_safe
+        end
+      end
+    end
+
+    def collection_radio_buttons method, collection, value_method, text_method, options = {}, *args
+      content_tag :div,
+                  class: form_group_classes(method),
+                  id: form_group_id(method) do
+        content_tag :fieldset, fieldset_options(method, options) do
+
+          legend_key = method
+          legend = fieldset_legend(legend_key, options)
+
+          collection =  super(method, collection, value_method, text_method, options) do |b|
+                          content_tag :div, class: "multiple-choice" do
+                            b.radio_button + b.label
+                          end
+                        end
+
+          (legend + collection).html_safe
+        end
+      end
     end
 
     # The following method will generate revealing panel markup and internally call the
