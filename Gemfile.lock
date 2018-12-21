@@ -113,6 +113,9 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
+    pry-byebug (3.6.0)
+      byebug (~> 10.0)
+      pry (~> 0.10)
     rack (2.0.6)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -195,10 +198,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  byebug
   govuk_elements_form_builder!
   guard-rspec
   htmlbeautifier
+  pry
+  pry-byebug
   rspec-html-matchers
   rspec-rails
   sqlite3
