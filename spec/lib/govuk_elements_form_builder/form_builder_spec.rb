@@ -652,52 +652,45 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
   describe '#collection_radio_button' do
 
-     skip 'outputs radio buttons in a stacked layout' do
-       person = Person.new
-       gender_collection = [
-           OpenStruct.new(code: 'M', name: 'Masculine'),
-           OpenStruct.new(code: 'F', name: 'Feminine'),
-           OpenStruct.new(code: 'N', name: 'Neuter')
-       ]
+    let(:person) {Person.new}
+    let(:gender_collection) {
+      [
+        OpenStruct.new(code: 'M', name: 'Masculine'),
+        OpenStruct.new(code: 'F', name: 'Feminine'),
+        OpenStruct.new(code: 'N', name: 'Neuter')
+      ]
+    }
 
-       output = builder.collection_radio_buttons :gender, gender_collection, :code, :name, {id: 'gender-radio-id'}
+    let(:output) {
+      builder.collection_radio_buttons :gender, gender_collection, :code, :name, {id: 'gender-radio-id'}
+    }
 
-      expected = [
-        '<div class="form-group">',
-        '<fieldset>',
-        '<legend>',
-        '<span class="form-label-bold">',
-        'Gender',
-        '</span>',
-        '<span class="form-hint">',
-        'Select from these options',
-        '</span>',
-        '</legend>',
-        '<div class="multiple-choice">',
-        '<input type="radio" value="M" name="person[gender]" id="person_gender_m" />',
-        '<label for="person_gender_m">',
-        'Masculine',
-        '</label>',
-        '</div>',
-        '<div class="multiple-choice">',
-        '<input type="radio" value="F" name="person[gender]" id="person_gender_f" />',
-        '<label for="person_gender_f">',
-        'Feminine',
-        '</label>',
-        '</div>',
-        '<div class="multiple-choice">',
-        '<input type="radio" value="N" name="person[gender]" id="person_gender_n" />',
-        '<label for="person_gender_n">',
-        'Neuter',
-        '</label>',
-        '</div>',
-        '</fieldset>',
-        '</div>'
-      ].join
+    let(:input_container) {'div.form-group > fieldset > div.multiple-choice'}
 
-      expect(output).to eql(expected)
+    specify 'builds the legend, form label and hint correctly' do
+      expect(output).to have_tag('div.form-group > fieldset > legend') do |legend|
+        expect(legend).to have_tag('span.form-label-bold', text: 'Gender')
+        expect(legend).to have_tag('span.form-hint', text: 'Select from these options')
+      end
+    end
 
-     end
+    specify 'adds the radio correct number of buttons' do
+      expect(output).to have_tag(input_container, count: gender_collection.size)
+    end
+
+    specify 'correctly builds the multiple-choice entries' do
+      gender_collection.each do |gc|
+        attributes = {type: 'radio', value: gc.code, name: "person[gender]"}
+        expect(output).to have_tag("#{input_container} > input#person_gender_#{gc.code.downcase}", with: attributes)
+      end
+    end
+
+    specify 'correctly labels each radio button' do
+      gender_collection.each do |gc|
+        attributes = {for: "person_gender_#{gc.code.downcase}"}
+        expect(output).to have_tag("#{input_container} > label", text: gc.name, with: attributes)
+      end
+    end
 
   end
 
