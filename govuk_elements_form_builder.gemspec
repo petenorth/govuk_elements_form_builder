@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", ">= 4.2"
+  s.add_dependency "rails", ">= 5.2.2"
   # Needed to ensure correct css/js is available
   s.add_dependency 'govuk_frontend_toolkit', '>= 6.0.0'
   s.add_dependency 'govuk_elements_rails',   '>= 3.0.0'
@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "guard-rspec"
   s.add_development_dependency 'rspec-html-matchers'
   s.add_development_dependency 'htmlbeautifier'
-  s.add_development_dependency 'codeclimate-test-reporter'
 
-  s.add_development_dependency "byebug"
+  s.add_development_dependency "pry"
+  s.add_development_dependency "pry-byebug"
 end
