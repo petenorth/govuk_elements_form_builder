@@ -77,10 +77,10 @@ module GovukElementsFormBuilder
         html_options = args.extract_options!
         set_field_classes! html_options, method
 
-        label = label(method, class: "form-label")
+        label = label(method, class: "govuk-label")
         add_hint :label, label, method
 
-        (label+ super(method, collection, value_method, text_method, options , html_options)).html_safe
+        (label+ super(method, collection, value_method, text_method, options, html_options)).html_safe
       end
     end
 
@@ -181,8 +181,8 @@ module GovukElementsFormBuilder
     end
 
     def set_field_classes! options, attribute
-      default_classes = ['form-control']
-      default_classes << 'form-control-error' if error_for?(attribute)
+      default_classes = ['govuk-input']
+      default_classes << 'govuk-inut--error' if error_for?(attribute)
 
       options ||= {}
       options.merge!(
@@ -194,7 +194,7 @@ module GovukElementsFormBuilder
       options ||= {}
       options[:label_options] ||= {}
       options[:label_options].merge!(
-        merge_attributes(options[:label_options], default: {class: 'form-label'})
+        merge_attributes(options[:label_options], default: {class: 'govuk-label'})
       )
     end
 
@@ -234,7 +234,7 @@ module GovukElementsFormBuilder
         tags = [content_tag(
                   :span,
                   fieldset_text(attribute),
-                  merge_attributes(options[:legend_options], default: {class: 'form-label-bold'})
+                  merge_attributes(options[:legend_options], default: {class: 'govuk-label'})
                 )]
 
         if error_for? attribute
@@ -246,7 +246,7 @@ module GovukElementsFormBuilder
         end
 
         hint = hint_text attribute
-        tags << content_tag(:span, hint, class: 'form-hint') if hint
+        tags << content_tag(:span, hint, class: 'govuk-hint') if hint
 
         safe_join tags
       end
@@ -313,8 +313,8 @@ module GovukElementsFormBuilder
 
     def form_group_classes attributes
       attributes = [attributes] if !attributes.respond_to? :count
-      classes = 'form-group'
-      classes += ' form-group-error' if attributes.find { |a| error_for? a }
+      classes = 'govuk-form-group'
+      classes += ' govuk-form-group--error' if attributes.find { |a| error_for? a }
       classes
     end
 
@@ -341,7 +341,7 @@ module GovukElementsFormBuilder
 
     def add_hint tag, element, name
       if hint = hint_text(name)
-        hint_span = content_tag(:span, hint, class: 'form-hint')
+        hint_span = content_tag(:span, hint, class: 'govuk-hint')
         element.sub!("</#{tag}>", "#{hint_span}</#{tag}>".html_safe)
       end
     end
