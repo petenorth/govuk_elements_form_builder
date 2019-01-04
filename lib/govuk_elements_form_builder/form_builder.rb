@@ -181,7 +181,7 @@ module GovukElementsFormBuilder
     end
 
     def set_field_classes!(options, attribute, default_classes=['govuk-input'])
-      default_classes << 'govuk-inut--error' if error_for?(attribute)
+      default_classes << 'govuk-input--error' if error_for?(attribute)
 
       options ||= {}
       options.merge!(
