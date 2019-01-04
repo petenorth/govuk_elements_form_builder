@@ -70,12 +70,12 @@ module GovukElementsFormBuilder
       end
     end
 
-    def collection_select method, collection, value_method, text_method, options = {}, *args
+    def collection_select(method, collection, value_method, text_method, options = {}, *args)
 
       content_tag :div, class: form_group_classes(method), id: form_group_id(method) do
 
         html_options = args.extract_options!
-        set_field_classes! html_options, method
+        set_field_classes!(html_options, method, 'govuk-select')
 
         label = label(method, class: "govuk-label")
         add_hint :label, label, method
@@ -180,8 +180,7 @@ module GovukElementsFormBuilder
       hash.merge(default) { |_key, oldval, newval| Array(newval) + Array(oldval) }
     end
 
-    def set_field_classes! options, attribute
-      default_classes = ['govuk-input']
+    def set_field_classes!(options, attribute, default_classes=['govuk-input'])
       default_classes << 'govuk-inut--error' if error_for?(attribute)
 
       options ||= {}
@@ -311,11 +310,12 @@ module GovukElementsFormBuilder
       ).html_safe # sub() returns a String, not a SafeBuffer
     end
 
-    def form_group_classes attributes
-      attributes = [attributes] if !attributes.respond_to? :count
-      classes = 'govuk-form-group'
-      classes += ' govuk-form-group--error' if attributes.find { |a| error_for? a }
-      classes
+    def form_group_classes(attributes)
+      %w{govuk-form-group}.tap do |classes|
+        if Array.wrap(attributes).find {|a| error_for?(a)}
+          classes << 'govuk-form-group--error'
+        end
+      end
     end
 
     def self.error_full_message_for attribute, object_name, object

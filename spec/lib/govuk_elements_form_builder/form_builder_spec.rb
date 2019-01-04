@@ -688,7 +688,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       end
 
       specify 'the select box has the correct contents' do
-        selector = 'div.govuk-form-group > select#person_gender.form-control'
+        selector = 'div.govuk-form-group > select#person_gender.govuk-select'
         attributes = {name: 'person[gender]'}
 
         expect(subject).to have_tag(selector, with: attributes) do |select|
