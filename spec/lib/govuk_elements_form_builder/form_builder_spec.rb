@@ -480,7 +480,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
     specify 'fieldset has the correct heading' do
       text = I18n.t('helpers.fieldset.person[waste_transport_attributes].waste_transport')
-      expect(subject).to have_tag('fieldset > legend > span.govuk-label', text)
+      expect(subject).to have_tag('fieldset legend > span.govuk-label', text)
     end
 
     specify 'outputs checkboxes with labels' do
@@ -538,7 +538,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
       specify 'inputs are marked as multiple choice' do
         count = fields_with_hidden_panels.push(field_without_hidden_panel).size
-        expect(subject).to have_tag('div.multiple-choice', count: count)
+        expect(subject).to have_tag('div.govuk-checkboxes__item', count: count)
       end
 
       specify 'should not add a text field to checkboxes without associated text fields' do
@@ -561,24 +561,39 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
     end
 
-    it 'outputs markup with support for revealing panels with specific ID' do
-      resource.waste_transport = WasteTransport.new
-      output = builder.fields_for(:waste_transport) do |f|
-        f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries] do |fieldset|
-          fieldset.check_box_input(:animal_carcasses)
-          fieldset.check_box_input(:mines_quarries, panel_id: 'mines_quarries_details_text_field_input')
+    context 'revealing panels' do
+
+      context 'with a specific ID' do
+        let(:waste_transport) {WasteTransport.new}
+        before {resource.waste_transport = waste_transport}
+
+        subject do
+          builder.fields_for(:waste_transport) do |f|
+            f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries] do |fieldset|
+              fieldset.check_box_input(:animal_carcasses)
+              fieldset.check_box_input(:mines_quarries, panel_id: 'mines_quarries_details_text_field_input')
+            end
+          end
+        end
+
+        specify 'outputs markup with support for revealing panels with specific ID' do
+          data_target = {'data-target' => "mines_quarries_details_text_field_input"}
+          expect(subject).to have_tag('div', with: data_target) do
+            expect(subject).to have_tag("input.govuk-checkboxes__input")
+          end
+        end
+
+
+        it 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
+          output = builder.fields_for(:waste_transport) do |f|
+            f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural], legend_options: {class: 'visuallyhidden', lang: 'en'}
+          end
+          expect(output).to match(/<legend><span class="govuk-label visuallyhidden" lang="en">/)
         end
       end
 
-      expect(output).to match(/<div class="multiple-choice" data-target="mines_quarries_details_text_field_input">/)
     end
 
-    it 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
-      output = builder.fields_for(:waste_transport) do |f|
-        f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural], legend_options: {class: 'visuallyhidden', lang: 'en'}
-      end
-      expect(output).to match(/<legend><span class="govuk-label visuallyhidden" lang="en">/)
-    end
   end
 
   describe '#collection_radio_buttons' do

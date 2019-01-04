@@ -63,10 +63,12 @@ module GovukElementsFormBuilder
                   class: form_group_classes(attributes),
                   id: form_group_id(attributes) do
         content_tag :fieldset, fieldset_options(attributes, options) do
-          safe_join([
-                      fieldset_legend(legend_key, options),
-                      block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
-                    ], "\n")
+          content_tag :div, class: "govuk-checkboxes" do
+            safe_join([
+                        fieldset_legend(legend_key, options),
+                        block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
+                      ], "\n")
+          end
         end
       end
     end
@@ -201,11 +203,11 @@ module GovukElementsFormBuilder
 
     def check_box_inputs attributes, options
       attributes.map do |attribute|
-        input = check_box(attribute)
-        label = label(attribute) do |tag|
+        input = check_box(attribute, class: "govuk-checkboxes__input")
+        label = label(attribute, class: "govuk-label govuk-checkboxes__label") do |tag|
           localized_label("#{attribute}")
         end
-        content_tag :div, {class: 'multiple-choice'}.merge(options.slice(:class, :'data-target')) do
+        content_tag :div, {class: 'govuk-checkboxes__item'}.merge(options.slice(:class, :'data-target')) do
           input + label
         end
       end
