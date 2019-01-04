@@ -24,8 +24,10 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
     specify 'outputs label and input wrapped in div' do
       expect(subject).to have_tag('div.govuk-form-group') do |fg|
-        expect(fg).to have_tag(element, with: {name: "#{resource_name}[#{attribute}]"})
         expect(fg).to have_tag("label.govuk-label", with: {for: [resource_name, attribute].join('_')})
+
+        class_selector = (method == :text_area) ? 'govuk-textarea' : 'govuk-input'
+        expect(fg).to have_tag("#{element}.#{class_selector}", with: {name: "#{resource_name}[#{attribute}]"})
       end
     end
 

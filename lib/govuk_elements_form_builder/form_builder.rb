@@ -16,24 +16,25 @@ module GovukElementsFormBuilder
       super record_name, record_object, fields_options.merge(builder: self.class), &block
     end
 
-    %i[
-      email_field
-      password_field
-      number_field
-      phone_field
-      range_field
-      search_field
-      telephone_field
-      text_area
-      text_field
-      url_field
-    ].each do |method_name|
+    {
+      email_field: "govuk-input",
+      number_field: "govuk-input",
+      password_field: "govuk-input",
+      phone_field: "govuk-input",
+      range_field: "govuk-input",
+      search_field: "govuk-input",
+      telephone_field: "govuk-input",
+      text_field: "govuk-input",
+      url_field: "govuk-input",
+      # text_area is, as usual, a special case
+      text_area: "govuk-textarea"
+    }.each do |method_name, default_field_class|
       define_method(method_name) do |attribute, *args|
         content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
           options = args.extract_options!
 
           set_label_classes! options
-          set_field_classes! options, attribute
+          set_field_classes! options, attribute, [default_field_class]
 
           label = label(attribute, options[:label_options])
 
@@ -187,6 +188,7 @@ module GovukElementsFormBuilder
       options.merge!(
         merge_attributes(options, default: {class: default_classes})
       )
+
     end
 
     def set_label_classes! options
