@@ -583,12 +583,22 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
           end
         end
 
+      end
 
-        it 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
-          output = builder.fields_for(:waste_transport) do |f|
-            f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural], legend_options: {class: 'visuallyhidden', lang: 'en'}
+      context 'propagation' do
+
+        subject do
+          builder.fields_for(:waste_transport) do |f|
+            f.check_box_fieldset(
+              :waste_transport,
+              [:animal_carcasses, :mines_quarries, :farm_agricultural],
+              legend_options: {class: 'visuallyhidden', lang: 'en'}
+            )
           end
-          expect(output).to match(/<legend><span class="govuk-label visuallyhidden" lang="en">/)
+        end
+
+        specify 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
+          expect(subject).to have_tag('span.govuk-label.visuallyhidden', with: {lang: 'en'})
         end
       end
 
