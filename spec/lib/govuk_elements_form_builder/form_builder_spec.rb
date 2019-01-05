@@ -526,9 +526,17 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       subject do
         builder.fields_for(:waste_transport) do |f|
           f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural] do |fieldset|
-            fieldset.check_box_input(:animal_carcasses)
-            fieldset.check_box_input(:mines_quarries) { f.text_field :mines_quarries_details }
-            fieldset.check_box_input(:farm_agricultural) { f.text_field :farm_agricultural_details }
+
+            # FIXME I'm not sure why the fieldset.safe_join is required here,
+            # in the actual formbuilder on the sample site the following layout
+            # works fine with erb but in the tests only the last
+            # check_box_input is returned.
+
+            fieldset.safe_join([
+              fieldset.check_box_input(:animal_carcasses),
+              fieldset.check_box_input(:mines_quarries) { f.text_field :mines_quarries_details },
+              fieldset.check_box_input(:farm_agricultural) { f.text_field :farm_agricultural_details }
+            ])
           end
         end
       end

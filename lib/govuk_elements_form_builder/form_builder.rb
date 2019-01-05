@@ -160,7 +160,7 @@ module GovukElementsFormBuilder
 
       checkbox = check_box_inputs([attribute], options).first + "\n"
 
-      safe_concat([checkbox, panel].join)
+      safe_join([checkbox, panel])
     end
 
     def revealing_panel panel_id, options = {}, &block
