@@ -610,10 +610,12 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
     }
 
     subject {
-      builder.collection_radio_buttons :gender, gender_collection, :code, :name, {id: 'gender-radio-id'}
+      builder.capture do
+        builder.collection_radio_buttons :gender, gender_collection, :code, :name, {id: 'gender-radio-id'}
+      end
     }
 
-    let(:input_container) {'div.govuk-form-group > fieldset > div.multiple-choice'}
+    let(:input_container) {'div.govuk-form-group > fieldset > .govuk-radios > .govuk-radios__item'}
 
     specify 'builds the legend, form label and hint correctly' do
       expect(subject).to have_tag('div.govuk-form-group > fieldset > legend') do |legend|
