@@ -355,6 +355,8 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       let(:other_input_panel) {:location_other_panel}
       let(:other_input_label) { I18n.t('label.location_other') }
 
+      let(:hidden_classes) {".govuk-checkboxes__conditional.govuk-checkboxes__conditional--hidden"}
+
       subject do
         builder.radio_button_fieldset(:location) do |fieldset|
           fieldset.radio_input(:england)
@@ -375,11 +377,11 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       end
 
       specify "there should be a hidden panel for the 'other' entry" do
-        expect(subject).to have_tag(".panel.js-hidden", with: {id: other_input_panel})
+        expect(subject).to have_tag(hidden_classes, with: {id: other_input_panel})
       end
 
       specify 'the hidden panel should contain a text input' do
-        expect(subject).to have_tag(".panel.js-hidden") do |panel|
+        expect(subject).to have_tag(hidden_classes) do |panel|
           expect(panel).to have_tag('input.govuk-input', with: {
             type: 'text',
             name: "person[#{other_input}]"
@@ -388,7 +390,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       end
 
       specify "the hidden 'other' input should be labelled correctly" do
-        expect(subject).to have_tag(".panel.js-hidden") do |panel|
+        expect(subject).to have_tag(hidden_classes) do |panel|
           expect(panel).to have_tag('label.govuk-label', with: {
             for: "person_#{other_input}"
           })
@@ -543,6 +545,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
       let(:fields_with_hidden_panels) {[:mines_quarries, :farm_agricultural]}
       let(:field_without_hidden_panel) {:animal_carcasses}
+      let(:hidden_classes) {".govuk-checkboxes__conditional.govuk-checkboxes__conditional--hidden"}
 
       specify 'inputs are marked as multiple choice' do
         count = fields_with_hidden_panels.push(field_without_hidden_panel).size
@@ -562,14 +565,11 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
               name: "person[waste_transport_attributes][#{fwhp}_details]"
             }
 
-            expect(panel).to have_tag('div.panel.js-hidden input', with: attributes)
+            expect(panel).to have_tag("#{hidden_classes} input", with: attributes)
           end
         end
+
       end
-
-    end
-
-    context 'revealing panels' do
 
       context 'with a specific ID' do
         let(:waste_transport) {WasteTransport.new}
@@ -585,33 +585,16 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
         end
 
         specify 'outputs markup with support for revealing panels with specific ID' do
-          data_target = {'data-target' => "mines_quarries_details_text_field_input"}
-          expect(subject).to have_tag('div', with: data_target) do
-            expect(subject).to have_tag("input.govuk-checkboxes__input")
+
+          expect(subject).to have_tag('div.govuk-checkboxes__item') do
+            expect(subject).to have_tag("input.govuk-checkboxes__input", with: {
+              'data-aria-controls' => 'mines_quarries_details_text_field_input'
+            })
           end
-        end
 
-      end
-
-      context 'propagation' do
-
-        subject do
-          builder.fields_for(:waste_transport) do |f|
-            f.check_box_fieldset(
-              :waste_transport,
-              [:animal_carcasses, :mines_quarries, :farm_agricultural],
-              legend_options: {class: 'visuallyhidden', lang: 'en'}
-            )
-          end
-        end
-
-        specify 'propagates html attributes down to the legend inner span if any provided, appending to the defaults' do
-          expect(subject).to have_tag('span.govuk-label.visuallyhidden', with: {lang: 'en'})
         end
       end
-
     end
-
   end
 
   describe '#collection_radio_buttons' do

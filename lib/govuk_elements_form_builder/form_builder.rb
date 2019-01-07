@@ -63,7 +63,7 @@ module GovukElementsFormBuilder
                   class: form_group_classes(attributes),
                   id: form_group_id(attributes) do
         content_tag :fieldset, fieldset_options(attributes, options) do
-          content_tag :div, class: "govuk-checkboxes" do
+          content_tag(:div, {class: "govuk-checkboxes", "data-module" => "checkboxes"}) do
             safe_join([
                         fieldset_legend(legend_key, options),
                         block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
@@ -74,7 +74,6 @@ module GovukElementsFormBuilder
     end
 
     def collection_select(method, collection, value_method, text_method, options = {}, *args)
-
       content_tag :div, class: form_group_classes(method), id: form_group_id(method) do
 
         html_options = args.extract_options!
@@ -154,7 +153,7 @@ module GovukElementsFormBuilder
     def check_box_input attribute, options = {}, &block
       panel = if block_given? || options.key?(:panel_id)
                 panel_id = options.delete(:panel_id) { [attribute, 'panel'].join('_') }
-                options.merge!('data-target': panel_id)
+                options.merge!('data-aria-controls': panel_id)
                 revealing_panel(panel_id, flush: false, &block) if block_given?
               end
 
@@ -165,7 +164,7 @@ module GovukElementsFormBuilder
 
     def revealing_panel panel_id, options = {}, &block
       panel = content_tag(
-        :div, class: 'panel panel-border-narrow js-hidden', id: panel_id
+        :div, class: 'govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden', id: panel_id
       ) { block.call(BlockBuffer.new(self)) } + "\n"
 
       options.fetch(:flush, true) ? safe_concat(panel) : panel
@@ -203,7 +202,7 @@ module GovukElementsFormBuilder
 
     def check_box_inputs attributes, options
       attributes.map do |attribute|
-        input = check_box(attribute, class: "govuk-checkboxes__input")
+        input = check_box(attribute, {class: "govuk-checkboxes__input"}.merge(options))
         label = label(attribute, class: "govuk-label govuk-checkboxes__label") do |tag|
           localized_label("#{attribute}")
         end
@@ -260,7 +259,8 @@ module GovukElementsFormBuilder
       self.current_fieldset_attribute = attribute
 
       fieldset_options = {}
-      fieldset_options[:class] = 'inline' if options[:inline] == true
+      fieldset_options[:class] = ['govuk-fieldset']
+      fieldset_options[:class] << 'inline' if options[:inline] == true
       fieldset_options
     end
 
