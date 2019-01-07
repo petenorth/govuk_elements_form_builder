@@ -759,4 +759,16 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
     end
 
   end
+
+  describe '#submit' do
+    subject {builder.submit("Enter")}
+
+    specify "outputs an input tag with the correct classes" do
+      expect(subject).to have_tag('input', with: {
+        class: 'govuk-button',
+        type: 'submit'
+      })
+    end
+
+  end
 end

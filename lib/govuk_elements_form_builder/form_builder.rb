@@ -179,6 +179,10 @@ module GovukElementsFormBuilder
       options.fetch(:flush, true) ? safe_concat(panel) : panel
     end
 
+    def submit(value = nil, options = {})
+      super(value, {class: "govuk-button"}.merge(options))
+    end
+
     private
 
     # Given an attributes hash that could include any number of arbitrary keys, this method
