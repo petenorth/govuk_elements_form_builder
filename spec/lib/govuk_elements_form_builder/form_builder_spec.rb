@@ -660,7 +660,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       builder.collection_check_boxes :gender, gender_collection, :code, :name, {id: 'gender-radio-id'}
     }
 
-    let(:input_container) {'div.govuk-form-group > fieldset > div.multiple-choice'}
+    let(:input_container) {'div.govuk-form-group > fieldset > .govuk-checkboxes > .govuk-checkboxes__item'}
 
     specify 'builds the legend, form label and hint correctly' do
       expect(subject).to have_tag('div.govuk-form-group > fieldset > legend') do |legend|

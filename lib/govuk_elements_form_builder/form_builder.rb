@@ -86,19 +86,24 @@ module GovukElementsFormBuilder
       end
     end
 
-    def collection_check_boxes  method, collection, value_method, text_method, options = {}, *args
-      content_tag :div,
+    def collection_check_boxes(method, collection, value_method, text_method, options = {}, *args)
+      content_tag(:div,
                   class: form_group_classes(method),
-                  id: form_group_id(method) do
-        content_tag :fieldset, fieldset_options(method, options) do
+                  id: form_group_id(method)) do
+        content_tag(:fieldset, fieldset_options(method, options)) do
           legend_key = method
           legend = fieldset_legend(legend_key, options)
 
-          collection =  super(method, collection, value_method, text_method, options) do |b|
-                          content_tag :div, class: "multiple-choice" do
-                            b.check_box + b.label
-                          end
-                        end
+          collection = content_tag(:div, {class: 'govuk-checkboxes', 'data-module' => 'checkboxes'}) do
+            super(method, collection, value_method, text_method, options) do |b|
+              content_tag(:div, class: "govuk-checkboxes__item") do
+                safe_join([
+                  b.check_box(class: %w{govuk-checkboxes__input}),
+                  b.label(class: %w{govuk-label govuk-checkboxes__label})
+                ])
+              end
+            end
+          end
 
           (legend + collection).html_safe
         end
@@ -106,9 +111,9 @@ module GovukElementsFormBuilder
     end
 
     def collection_radio_buttons method, collection, value_method, text_method, options = {}, *args
-      content_tag :div,
+      content_tag(:div,
         class: form_group_classes(method),
-        id: form_group_id(method) do
+        id: form_group_id(method)) do
           content_tag(:fieldset, fieldset_options(method, options)) do
 
             legend_key = method
@@ -117,8 +122,8 @@ module GovukElementsFormBuilder
             collection = content_tag(:div, {class: "govuk-radios", "data-module" => "radios"}) do
               super(method, collection, value_method, text_method, options) do |b|
                 content_tag :div, class: "govuk-radios__item" do
-                    b.radio_button(class: "govuk-radios__input") +
-                    b.label(class: "govuk-label govuk-radios__label")
+                    b.radio_button(class: %w{govuk-radios__input}) +
+                      b.label(class: %w{govuk-label govuk-radios__label})
                 end
               end
             end
