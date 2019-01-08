@@ -784,7 +784,11 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
           end
 
           specify "should have a #{segment} input" do
-            expect(subject).to have_tag('input', with: {name: "person_created_at_#{identifier}"})
+            expect(subject).to have_tag('input', with: {
+              name: "person_created_at_#{identifier}",
+              type: 'number',
+              pattern: '[0-9]*'
+            })
           end
         end
       end
