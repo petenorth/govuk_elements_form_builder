@@ -40,7 +40,7 @@ module GovukElementsFormBuilder
 
           add_hint :label, label, attribute
 
-          (label + super(attribute, options.except(:label, :label_options))).html_safe
+          (label + super(attribute, options.except(:label, :label_options, :width))).html_safe
         end
       end
     end
@@ -265,12 +265,16 @@ module GovukElementsFormBuilder
       hash.merge(default) { |_key, oldval, newval| Array(newval) + Array(oldval) }
     end
 
-    def set_field_classes!(options, attribute, default_classes=['govuk-input'])
-      default_classes << 'govuk-input--error' if error_for?(attribute)
+    def set_field_classes!(options, attribute, classes=['govuk-input'])
+      classes << 'govuk-input--error' if error_for?(attribute)
+
+      if width = options.dig(:width)
+        classes << width_class(width)
+      end
 
       options ||= {}
       options.merge!(
-        merge_attributes(options, default: {class: default_classes})
+        merge_attributes(options, default: {class: classes})
       )
 
     end

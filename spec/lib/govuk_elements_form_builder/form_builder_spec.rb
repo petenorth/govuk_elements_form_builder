@@ -63,6 +63,22 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
       end
 
+      context 'widths' do
+
+
+          specify "should add class the correct width classes" do
+            {
+              20           => 'govuk-input--width-20',
+              5            => 'govuk-input--width-5',
+              'two-thirds' => 'govuk-\!-width-two-thirds',
+              'full'       => 'govuk-\!-width-full'
+            }.each do |arg, width_class|
+            expect(builder.send(method, :name, width: arg)).to have_tag(element, with: {class: width_class})
+          end
+
+        end
+      end
+
     end
 
     context 'labels' do
