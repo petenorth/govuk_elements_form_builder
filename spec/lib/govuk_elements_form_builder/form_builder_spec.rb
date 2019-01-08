@@ -760,6 +760,37 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
   end
 
+  describe '#date_field' do
+    subject {builder.date_field(:created_at)}
+    let(:label_text) {"Created at"}
+
+    specify 'should create a fieldset containing legend and inputs' do
+      expect(subject).to have_tag('fieldset > legend')
+      expect(subject).to have_tag('input', count: 3)
+    end
+
+    specify 'legend should have the correct title' do
+      expect(subject).to have_tag('fieldset > legend') do |legend|
+        expect(legend).to have_tag('span', class: %w{govuk-label}, text: label_text)
+      end
+    end
+
+    context 'labels and inputs' do
+      {day: '3i', month: '2i', year: '1i'}.each do |segment, identifier|
+
+        context "#{segment.capitalize}" do
+          specify "should have a #{segment} label" do
+            expect(subject).to have_tag('label', text: segment.capitalize)
+          end
+
+          specify "should have a #{segment} input" do
+            expect(subject).to have_tag('input', with: {name: "person_created_at_#{identifier}"})
+          end
+        end
+      end
+    end
+  end
+
   describe '#submit' do
     subject {builder.submit("Enter")}
 

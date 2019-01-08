@@ -183,7 +183,77 @@ module GovukElementsFormBuilder
       super(value, {class: "govuk-button"}.merge(options))
     end
 
+    def date_field(attribute, options = {})
+      content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
+        content_tag :fieldset, fieldset_options(attribute, options) do
+
+          date_inputs = content_tag(:div, class: 'govuk-date-input') do |di|
+
+            safe_join([
+              date_input_form_group(attribute, segment: :day),
+              date_input_form_group(attribute, segment: :month),
+              date_input_form_group(attribute, segment: :year, width: 4)
+            ])
+
+          end
+
+          safe_join([
+            fieldset_legend(attribute, options),
+            date_inputs
+          ])
+        end
+      end
+    end
+
     private
+
+    # Gov.UK Design System date inputs require a fieldset containing
+    # separate number inputs for Day, Month and Year. Rails' handling
+    # requires they are named with 3i, 2i and 1i prefix respectively
+    def date_input_form_group(attribute, segment: :day, width: 2)
+      segments = {day: '3i', month: '2i', year: '1i'}
+      content_tag(:div, class: %w{govuk-date-input__item}) do
+
+        date_input_options = {
+          class: %w{govuk-input govuk-date-input__input}.push(width_class(width)),
+          type: 'number',
+          pattern: '[0-9]*',
+        }
+
+        input_identifier = [attribute_prefix, attribute, "#{segments[segment]}"].join('_')
+
+        safe_join([
+          label(input_identifier, segment.capitalize, class: %w{govuk-label govuk-date-input__label}),
+          tag(:input, date_input_options.merge(
+            {name: input_identifier}
+          ))
+        ])
+      end
+    end
+
+
+    def width_class(width)
+      case width
+      # fixed (character) widths
+      when 20 then 'govuk-input--width-20'
+      when 10 then 'govuk-input--width-10'
+      when 5  then 'govuk-input--width-5'
+      when 4  then 'govuk-input--width-4'
+      when 3  then 'govuk-input--width-3'
+      when 2  then 'govuk-input--width-2'
+
+      # fluid widths
+      when 'full'           then 'govuk-!-width-full'
+      when 'three-quarters' then 'govuk-!-width-three-quarters'
+      when 'two-thirds'     then 'govuk-!-width-two-thirds'
+      when 'one-half'       then 'govuk-!-width-one-half'
+      when 'one-third'      then 'govuk-!-width-one-third'
+      when 'one-quarter'    then 'govuk-!-width-one-quarter'
+
+      # default
+      else 'govuk-input--width-20'
+      end
+    end
 
     # Given an attributes hash that could include any number of arbitrary keys, this method
     # ensure we merge one or more 'default' attributes into the hash, creating the keys if
