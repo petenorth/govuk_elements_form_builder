@@ -50,10 +50,12 @@ module GovukElementsFormBuilder
                   class: form_group_classes(attribute),
                   id: form_group_id(attribute) do
         content_tag :fieldset, fieldset_options(attribute, options) do
-          safe_join([
-                      fieldset_legend(attribute, options),
-                      block_given? ? capture(self, &block) : radio_inputs(attribute, options)
-                    ], "\n")
+          content_tag(:div, {class: "govuk-radios govuk-radios__inline govuk-radios--conditional", "data-module" => "radios"}) do
+            safe_join([
+                        fieldset_legend(attribute, options),
+                        block_given? ? capture(self, &block) : radio_inputs(attribute, options)
+                      ], "\n")
+          end
         end
       end
     end
@@ -143,8 +145,8 @@ module GovukElementsFormBuilder
 
       panel = if block_given? || options.key?(:panel_id)
         panel_id = options.delete(:panel_id) { [fieldset_attribute, choice, 'panel'].join('_') }
-        options.merge!('data-target': panel_id)
-        revealing_panel(panel_id, flush: false, &block) if block_given?
+        options.merge!('data-aria-controls' => panel_id)
+        revealing_panel(panel_id, 'radios', flush: false, &block) if block_given?
       end
 
       option = radio_inputs(
@@ -152,7 +154,7 @@ module GovukElementsFormBuilder
         options.merge(choices: [choice])
       ).first + "\n"
 
-      safe_concat([option, panel].join)
+      safe_join([option, panel])
     end
 
     # The following method will generate revealing panel markup and internally call the
@@ -162,8 +164,8 @@ module GovukElementsFormBuilder
     def check_box_input attribute, options = {}, &block
       panel = if block_given? || options.key?(:panel_id)
                 panel_id = options.delete(:panel_id) { [attribute, 'panel'].join('_') }
-                options.merge!('data-aria-controls': panel_id)
-                revealing_panel(panel_id, flush: false, &block) if block_given?
+                options.merge!('data-aria-controls' => panel_id)
+                revealing_panel(panel_id, 'checkboxes', flush: false, &block) if block_given?
               end
 
       checkbox = check_box_inputs([attribute], options).first + "\n"
@@ -171,9 +173,14 @@ module GovukElementsFormBuilder
       safe_join([checkbox, panel])
     end
 
-    def revealing_panel panel_id, options = {}, &block
+    def revealing_panel panel_id, element_type = "checkboxes", options = {}, &block
+
+      unless %w{radios checkboxes}.include?(element_type)
+        Rails.logger.warn("Revealing panels only work for radios and checkboxes")
+      end
+
       panel = content_tag(
-        :div, class: 'govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden', id: panel_id
+        :div, class: "govuk-#{element_type}__conditional govuk-#{element_type}__conditional--hidden", id: panel_id
       ) { block.call(BlockBuffer.new(self)) } + "\n"
 
       options.fetch(:flush, true) ? safe_concat(panel) : panel
@@ -293,7 +300,7 @@ module GovukElementsFormBuilder
         label = label(attribute, class: "govuk-label govuk-checkboxes__label") do |tag|
           localized_label("#{attribute}")
         end
-        content_tag :div, {class: 'govuk-checkboxes__item'}.merge(options.slice(:class, :'data-target')) do
+        content_tag :div, {class: 'govuk-checkboxes__item'}.merge(options.slice(:class, 'data-aria-controls')) do
           input + label
         end
       end
@@ -301,21 +308,26 @@ module GovukElementsFormBuilder
 
     def radio_inputs attribute, options
       choices = options[:choices] || [ :yes, :no ]
+
       choices.map do |choice|
         value = choice.send(options[:value_method] || :to_s)
-        input = radio_button(attribute, value)
-        label = label(attribute, value: value) do |tag|
-                text = if options.has_key? :text_method
-                        choice.send(options[:text_method])
-                      else
-                        localized_label("#{attribute}.#{choice}")
-                      end
-                text
+        input = radio_button(
+          attribute,
+          value,
+          {class: 'govuk-radios__input'}.merge(options.slice('data-aria-controls'))
+        )
+        label = label(attribute, class: 'govuk-label govuk-radios__label', value: value) do |tag|
+          if options.has_key? :text_method
+            choice.send(options[:text_method])
+          else
+            localized_label("#{attribute}.#{choice}")
+          end
         end
-        content_tag :div, {class: 'multiple-choice'}.merge(options.slice(:class, :'data-target')) do
+        content_tag :div, {class: 'govuk-radios__item'} do
           input + label
         end
       end
+
     end
 
     def fieldset_legend attribute, options

@@ -328,9 +328,9 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
           .t('helpers.label.person.location')
           .reject{|k,v| k == :other}
           .each do |k,v|
-          attributes = {for: "person_location_#{k}"}
-          expect(subject).to have_tag('label', with: attributes, text: v)
-        end
+            attributes = {for: "person_location_#{k}"}
+            expect(subject).to have_tag('label', with: attributes, text: v)
+          end
 
       end
 
@@ -342,7 +342,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
       specify 'outputs yes/no choices' do
         expect(subject).to have_tag('.govuk-form-group > fieldset') do |fieldset|
-          expect(fieldset).to have_tag('div.multiple-choice > input', count: 2, with: {type: 'radio'})
+          expect(fieldset).to have_tag('div.govuk-radios__item > input', count: 2, with: {type: 'radio'})
           expect(fieldset).to have_tag('input', with: {value: 'no'})
           expect(fieldset).to have_tag('input', with: {value: 'yes'})
         end
@@ -371,7 +371,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       let(:other_input_panel) {:location_other_panel}
       let(:other_input_label) { I18n.t('label.location_other') }
 
-      let(:hidden_classes) {".govuk-checkboxes__conditional.govuk-checkboxes__conditional--hidden"}
+      let(:hidden_classes) {".govuk-radios__conditional.govuk-radios__conditional--hidden"}
 
       subject do
         builder.radio_button_fieldset(:location) do |fieldset|
@@ -383,11 +383,11 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       end
 
       specify "there should be an 'other' entry" do
-        target_options = {'data-target' => other_input_panel}
-        expect(subject).to have_tag('.multiple-choice', with: target_options) do
+        expect(subject).to have_tag('.govuk-radios__item') do
           expect(subject).to have_tag('input', with: {
             type: 'radio',
-            value: 'other'
+            value: 'other',
+            'data-aria-controls' => other_input_panel
           })
         end
       end
@@ -416,17 +416,20 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
     context 'revealing panels with a specific id' do
 
+      let(:other_input) {:location_other}
       let(:custom_div) {"a-customisable-div"}
 
       subject do
         builder.radio_button_fieldset :location do |fieldset|
           fieldset.radio_input(:england)
-          fieldset.radio_input(:other, panel_id: custom_div)
+          fieldset.radio_input(:other, panel_id: custom_div) do
+            fieldset.text_field other_input
+          end
         end
       end
 
       specify 'outputs markup with support for revealing panels with specific id' do
-        expect(subject).to have_tag('.multiple-choice', with: {"data-target" => custom_div})
+        expect(subject).to have_tag('.govuk-radios__input', with: {"data-aria-controls" => custom_div})
       end
 
     end
