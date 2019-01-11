@@ -16,30 +16,31 @@ module GovukElementsFormBuilder
       super record_name, record_object, fields_options.merge(builder: self.class), &block
     end
 
-    %i[
-      email_field
-      password_field
-      number_field
-      phone_field
-      range_field
-      search_field
-      telephone_field
-      text_area
-      text_field
-      url_field
-    ].each do |method_name|
+    {
+      email_field: "govuk-input",
+      number_field: "govuk-input",
+      password_field: "govuk-input",
+      phone_field: "govuk-input",
+      range_field: "govuk-input",
+      search_field: "govuk-input",
+      telephone_field: "govuk-input",
+      text_field: "govuk-input",
+      url_field: "govuk-input",
+      # text_area is, as usual, a special case
+      text_area: "govuk-textarea"
+    }.each do |method_name, default_field_class|
       define_method(method_name) do |attribute, *args|
         content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
           options = args.extract_options!
 
           set_label_classes! options
-          set_field_classes! options, attribute
+          set_field_classes! options, attribute, [default_field_class]
 
           label = label(attribute, options[:label_options])
 
           add_hint :label, label, attribute
 
-          (label + super(attribute, options.except(:label, :label_options))).html_safe
+          (label + super(attribute, options.except(:label, :label_options, :width))).html_safe
         end
       end
     end
@@ -49,10 +50,12 @@ module GovukElementsFormBuilder
                   class: form_group_classes(attribute),
                   id: form_group_id(attribute) do
         content_tag :fieldset, fieldset_options(attribute, options) do
-          safe_join([
-                      fieldset_legend(attribute, options),
-                      block_given? ? capture(self, &block) : radio_inputs(attribute, options)
-                    ], "\n")
+          content_tag(:div, {class: "govuk-radios govuk-radios__inline govuk-radios--conditional", "data-module" => "radios"}) do
+            safe_join([
+                        fieldset_legend(attribute, options),
+                        block_given? ? capture(self, &block) : radio_inputs(attribute, options)
+                      ], "\n")
+          end
         end
       end
     end
@@ -62,41 +65,47 @@ module GovukElementsFormBuilder
                   class: form_group_classes(attributes),
                   id: form_group_id(attributes) do
         content_tag :fieldset, fieldset_options(attributes, options) do
-          safe_join([
-                      fieldset_legend(legend_key, options),
-                      block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
-                    ], "\n")
+          content_tag(:div, {class: "govuk-checkboxes", "data-module" => "checkboxes"}) do
+            safe_join([
+                        fieldset_legend(legend_key, options),
+                        block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
+                      ], "\n")
+          end
         end
       end
     end
 
-    def collection_select method, collection, value_method, text_method, options = {}, *args
-
+    def collection_select(method, collection, value_method, text_method, options = {}, *args)
       content_tag :div, class: form_group_classes(method), id: form_group_id(method) do
 
         html_options = args.extract_options!
-        set_field_classes! html_options, method
+        set_field_classes!(html_options, method, 'govuk-select')
 
-        label = label(method, class: "form-label")
+        label = label(method, class: "govuk-label")
         add_hint :label, label, method
 
-        (label+ super(method, collection, value_method, text_method, options , html_options)).html_safe
+        (label+ super(method, collection, value_method, text_method, options, html_options)).html_safe
       end
     end
 
-    def collection_check_boxes  method, collection, value_method, text_method, options = {}, *args
-      content_tag :div,
+    def collection_check_boxes(method, collection, value_method, text_method, options = {}, *args)
+      content_tag(:div,
                   class: form_group_classes(method),
-                  id: form_group_id(method) do
-        content_tag :fieldset, fieldset_options(method, options) do
+                  id: form_group_id(method)) do
+        content_tag(:fieldset, fieldset_options(method, options)) do
           legend_key = method
           legend = fieldset_legend(legend_key, options)
 
-          collection =  super(method, collection, value_method, text_method, options) do |b|
-                          content_tag :div, class: "multiple-choice" do
-                            b.check_box + b.label
-                          end
-                        end
+          collection = content_tag(:div, {class: 'govuk-checkboxes', 'data-module' => 'checkboxes'}) do
+            super(method, collection, value_method, text_method, options) do |b|
+              content_tag(:div, class: "govuk-checkboxes__item") do
+                safe_join([
+                  b.check_box(class: %w{govuk-checkboxes__input}),
+                  b.label(class: %w{govuk-label govuk-checkboxes__label})
+                ])
+              end
+            end
+          end
 
           (legend + collection).html_safe
         end
@@ -104,23 +113,27 @@ module GovukElementsFormBuilder
     end
 
     def collection_radio_buttons method, collection, value_method, text_method, options = {}, *args
-      content_tag :div,
-                  class: form_group_classes(method),
-                  id: form_group_id(method) do
-        content_tag :fieldset, fieldset_options(method, options) do
+      content_tag(:div,
+        class: form_group_classes(method),
+        id: form_group_id(method)) do
+          content_tag(:fieldset, fieldset_options(method, options)) do
 
-          legend_key = method
-          legend = fieldset_legend(legend_key, options)
+            legend_key = method
+            legend = fieldset_legend(legend_key, options)
 
-          collection =  super(method, collection, value_method, text_method, options) do |b|
-                          content_tag :div, class: "multiple-choice" do
-                            b.radio_button + b.label
-                          end
-                        end
+            collection = content_tag(:div, {class: "govuk-radios", "data-module" => "radios"}) do
+              super(method, collection, value_method, text_method, options) do |b|
+                content_tag :div, class: "govuk-radios__item" do
+                    b.radio_button(class: %w{govuk-radios__input}) +
+                      b.label(class: %w{govuk-label govuk-radios__label})
+                end
+              end
+            end
 
-          (legend + collection).html_safe
+            (legend + collection).html_safe
+
+          end
         end
-      end
     end
 
     # The following method will generate revealing panel markup and internally call the
@@ -132,8 +145,8 @@ module GovukElementsFormBuilder
 
       panel = if block_given? || options.key?(:panel_id)
         panel_id = options.delete(:panel_id) { [fieldset_attribute, choice, 'panel'].join('_') }
-        options.merge!('data-target': panel_id)
-        revealing_panel(panel_id, flush: false, &block) if block_given?
+        options.merge!('data-aria-controls' => panel_id)
+        revealing_panel(panel_id, 'radios', flush: false, &block) if block_given?
       end
 
       option = radio_inputs(
@@ -141,7 +154,7 @@ module GovukElementsFormBuilder
         options.merge(choices: [choice])
       ).first + "\n"
 
-      safe_concat([option, panel].join)
+      safe_join([option, panel])
     end
 
     # The following method will generate revealing panel markup and internally call the
@@ -151,24 +164,103 @@ module GovukElementsFormBuilder
     def check_box_input attribute, options = {}, &block
       panel = if block_given? || options.key?(:panel_id)
                 panel_id = options.delete(:panel_id) { [attribute, 'panel'].join('_') }
-                options.merge!('data-target': panel_id)
-                revealing_panel(panel_id, flush: false, &block) if block_given?
+                options.merge!('data-aria-controls' => panel_id)
+                revealing_panel(panel_id, 'checkboxes', flush: false, &block) if block_given?
               end
 
       checkbox = check_box_inputs([attribute], options).first + "\n"
 
-      safe_concat([checkbox, panel].join)
+      safe_join([checkbox, panel])
     end
 
-    def revealing_panel panel_id, options = {}, &block
+    def revealing_panel panel_id, element_type = "checkboxes", options = {}, &block
+
+      unless %w{radios checkboxes}.include?(element_type)
+        Rails.logger.warn("Revealing panels only work for radios and checkboxes")
+      end
+
       panel = content_tag(
-        :div, class: 'panel panel-border-narrow js-hidden', id: panel_id
+        :div, class: "govuk-#{element_type}__conditional govuk-#{element_type}__conditional--hidden", id: panel_id
       ) { block.call(BlockBuffer.new(self)) } + "\n"
 
       options.fetch(:flush, true) ? safe_concat(panel) : panel
     end
 
+    def submit(value = nil, options = {})
+      super(value, {class: "govuk-button"}.merge(options))
+    end
+
+    def date_field(attribute, options = {})
+      content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
+        content_tag :fieldset, fieldset_options(attribute, options) do
+
+          date_inputs = content_tag(:div, class: 'govuk-date-input') do |di|
+
+            safe_join([
+              date_input_form_group(attribute, segment: :day),
+              date_input_form_group(attribute, segment: :month),
+              date_input_form_group(attribute, segment: :year, width: 4)
+            ])
+
+          end
+
+          safe_join([
+            fieldset_legend(attribute, options),
+            date_inputs
+          ])
+        end
+      end
+    end
+
     private
+
+    # Gov.UK Design System date inputs require a fieldset containing
+    # separate number inputs for Day, Month and Year. Rails' handling
+    # requires they are named with 3i, 2i and 1i prefix respectively
+    def date_input_form_group(attribute, segment: :day, width: 2)
+      segments = {day: '3i', month: '2i', year: '1i'}
+      content_tag(:div, class: %w{govuk-date-input__item}) do
+
+        date_input_options = {
+          class: %w{govuk-input govuk-date-input__input}.push(width_class(width)),
+          type: 'number',
+          pattern: '[0-9]*',
+        }
+
+        input_identifier = [attribute_prefix, attribute, "#{segments[segment]}"].join('_')
+
+        safe_join([
+          label(input_identifier, segment.capitalize, class: %w{govuk-label govuk-date-input__label}),
+          tag(:input, date_input_options.merge(
+            {name: input_identifier}
+          ))
+        ])
+      end
+    end
+
+
+    def width_class(width)
+      case width
+      # fixed (character) widths
+      when 20 then 'govuk-input--width-20'
+      when 10 then 'govuk-input--width-10'
+      when 5  then 'govuk-input--width-5'
+      when 4  then 'govuk-input--width-4'
+      when 3  then 'govuk-input--width-3'
+      when 2  then 'govuk-input--width-2'
+
+      # fluid widths
+      when 'full'           then 'govuk-!-width-full'
+      when 'three-quarters' then 'govuk-!-width-three-quarters'
+      when 'two-thirds'     then 'govuk-!-width-two-thirds'
+      when 'one-half'       then 'govuk-!-width-one-half'
+      when 'one-third'      then 'govuk-!-width-one-third'
+      when 'one-quarter'    then 'govuk-!-width-one-quarter'
+
+      # default
+      else 'govuk-input--width-20'
+      end
+    end
 
     # Given an attributes hash that could include any number of arbitrary keys, this method
     # ensure we merge one or more 'default' attributes into the hash, creating the keys if
@@ -180,31 +272,35 @@ module GovukElementsFormBuilder
       hash.merge(default) { |_key, oldval, newval| Array(newval) + Array(oldval) }
     end
 
-    def set_field_classes! options, attribute
-      default_classes = ['form-control']
-      default_classes << 'form-control-error' if error_for?(attribute)
+    def set_field_classes!(options, attribute, classes=['govuk-input'])
+      classes << 'govuk-input--error' if error_for?(attribute)
+
+      if width = options.dig(:width)
+        classes << width_class(width)
+      end
 
       options ||= {}
       options.merge!(
-        merge_attributes(options, default: {class: default_classes})
+        merge_attributes(options, default: {class: classes})
       )
+
     end
 
     def set_label_classes! options
       options ||= {}
       options[:label_options] ||= {}
       options[:label_options].merge!(
-        merge_attributes(options[:label_options], default: {class: 'form-label'})
+        merge_attributes(options[:label_options], default: {class: 'govuk-label'})
       )
     end
 
     def check_box_inputs attributes, options
       attributes.map do |attribute|
-        input = check_box(attribute)
-        label = label(attribute) do |tag|
+        input = check_box(attribute, {class: "govuk-checkboxes__input"}.merge(options))
+        label = label(attribute, class: "govuk-label govuk-checkboxes__label") do |tag|
           localized_label("#{attribute}")
         end
-        content_tag :div, {class: 'multiple-choice'}.merge(options.slice(:class, :'data-target')) do
+        content_tag :div, {class: 'govuk-checkboxes__item'}.merge(options.slice(:class, 'data-aria-controls')) do
           input + label
         end
       end
@@ -212,21 +308,26 @@ module GovukElementsFormBuilder
 
     def radio_inputs attribute, options
       choices = options[:choices] || [ :yes, :no ]
+
       choices.map do |choice|
         value = choice.send(options[:value_method] || :to_s)
-        input = radio_button(attribute, value)
-        label = label(attribute, value: value) do |tag|
-                text = if options.has_key? :text_method
-                        choice.send(options[:text_method])
-                      else
-                        localized_label("#{attribute}.#{choice}")
-                      end
-                text
+        input = radio_button(
+          attribute,
+          value,
+          {class: 'govuk-radios__input'}.merge(options.slice('data-aria-controls'))
+        )
+        label = label(attribute, class: 'govuk-label govuk-radios__label', value: value) do |tag|
+          if options.has_key? :text_method
+            choice.send(options[:text_method])
+          else
+            localized_label("#{attribute}.#{choice}")
+          end
         end
-        content_tag :div, {class: 'multiple-choice'}.merge(options.slice(:class, :'data-target')) do
+        content_tag :div, {class: 'govuk-radios__item'} do
           input + label
         end
       end
+
     end
 
     def fieldset_legend attribute, options
@@ -234,7 +335,7 @@ module GovukElementsFormBuilder
         tags = [content_tag(
                   :span,
                   fieldset_text(attribute),
-                  merge_attributes(options[:legend_options], default: {class: 'form-label-bold'})
+                  merge_attributes(options[:legend_options], default: {class: 'govuk-label'})
                 )]
 
         if error_for? attribute
@@ -246,7 +347,7 @@ module GovukElementsFormBuilder
         end
 
         hint = hint_text attribute
-        tags << content_tag(:span, hint, class: 'form-hint') if hint
+        tags << content_tag(:span, hint, class: 'govuk-hint') if hint
 
         safe_join tags
       end
@@ -257,7 +358,8 @@ module GovukElementsFormBuilder
       self.current_fieldset_attribute = attribute
 
       fieldset_options = {}
-      fieldset_options[:class] = 'inline' if options[:inline] == true
+      fieldset_options[:class] = ['govuk-fieldset']
+      fieldset_options[:class] << 'inline' if options[:inline] == true
       fieldset_options
     end
 
@@ -311,11 +413,12 @@ module GovukElementsFormBuilder
       ).html_safe # sub() returns a String, not a SafeBuffer
     end
 
-    def form_group_classes attributes
-      attributes = [attributes] if !attributes.respond_to? :count
-      classes = 'form-group'
-      classes += ' form-group-error' if attributes.find { |a| error_for? a }
-      classes
+    def form_group_classes(attributes)
+      %w{govuk-form-group}.tap do |classes|
+        if Array.wrap(attributes).find {|a| error_for?(a)}
+          classes << 'govuk-form-group--error'
+        end
+      end
     end
 
     def self.error_full_message_for attribute, object_name, object
@@ -341,7 +444,7 @@ module GovukElementsFormBuilder
 
     def add_hint tag, element, name
       if hint = hint_text(name)
-        hint_span = content_tag(:span, hint, class: 'form-hint')
+        hint_span = content_tag(:span, hint, class: 'govuk-hint')
         element.sub!("</#{tag}>", "#{hint_span}</#{tag}>".html_safe)
       end
     end
