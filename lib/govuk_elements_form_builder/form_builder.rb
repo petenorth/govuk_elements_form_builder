@@ -342,7 +342,7 @@ module GovukElementsFormBuilder
           tags << content_tag(
             :span,
             error_full_message_for(attribute),
-            class: 'error-message'
+            class: 'govuk-error-message'
           )
         end
 
@@ -398,7 +398,7 @@ module GovukElementsFormBuilder
       if message
         html_tag.sub(
           '</label',
-          %Q{<span class="error-message" id="error_message_#{field}">#{message}</span></label}
+          %Q{<span class="govuk-error-message" id="error_message_#{field}">#{message}</span></label}
         ).html_safe # sub() returns a String, not a SafeBuffer
       else
         html_tag
