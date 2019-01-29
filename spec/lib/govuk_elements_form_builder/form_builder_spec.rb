@@ -484,7 +484,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       end
 
       specify 'the form group should have error messages' do
-        expect(subject).to have_tag('.govuk-form-group--error span.error-message', text: error_message)
+        expect(subject).to have_tag('.govuk-form-group--error span.govuk-error-message', text: error_message)
       end
 
     end
