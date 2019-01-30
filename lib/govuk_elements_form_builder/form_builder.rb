@@ -227,14 +227,26 @@ module GovukElementsFormBuilder
           pattern: '[0-9]*',
         }
 
-        input_identifier = [attribute_prefix, attribute, "#{segments[segment]}"].join('_')
+        attribute_segment = "#{attribute}(#{segments[segment]})"
+        input_name = "#{attribute_prefix}[#{attribute_segment}]"
+        input_value = @object.try(attribute).try(segment)
+        input_id = [attribute_prefix, attribute, segments[segment]].join('_')
 
-        safe_join([
-          label(input_identifier, segment.capitalize, class: %w{govuk-label govuk-date-input__label}),
-          tag(:input, date_input_options.merge(
-            {name: input_identifier}
-          ))
-        ])
+        input_tag = tag \
+          :input,
+          date_input_options.merge({
+            name: input_name,
+            value: input_value,
+            id: input_id
+          })
+
+        input_label = content_tag \
+          :label,
+          segment.capitalize,
+          for: input_id,
+          class: %w{govuk-label govuk-date-input__label}
+
+        safe_join [input_label, input_tag]
       end
     end
 
