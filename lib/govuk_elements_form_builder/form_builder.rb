@@ -52,7 +52,7 @@ module GovukElementsFormBuilder
         content_tag :fieldset, fieldset_options(attribute, options) do
           content_tag(:div, {class: "govuk-radios govuk-radios__inline govuk-radios--conditional", "data-module" => "radios"}) do
             safe_join([
-                        fieldset_legend(attribute, options),
+                        fieldset_legend(attribute, options, heading: true),
                         block_given? ? capture(self, &block) : radio_inputs(attribute, options)
                       ], "\n")
           end
@@ -67,7 +67,7 @@ module GovukElementsFormBuilder
         content_tag :fieldset, fieldset_options(attributes, options) do
           content_tag(:div, {class: "govuk-checkboxes", "data-module" => "checkboxes"}) do
             safe_join([
-                        fieldset_legend(legend_key, options),
+                        fieldset_legend(legend_key, options, heading: true),
                         block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
                       ], "\n")
           end
@@ -342,13 +342,24 @@ module GovukElementsFormBuilder
 
     end
 
-    def fieldset_legend attribute, options
-      legend = content_tag(:legend) do
-        tags = [content_tag(
-                  :span,
-                  fieldset_text(attribute),
-                  merge_attributes(options[:legend_options], default: {class: 'govuk-label'})
-                )]
+    def fieldset_legend(attribute, options, heading: false)
+      legend = content_tag('legend', class: 'govuk-fieldset__legend govuk-fieldset__legend--l') do
+
+        tags = []
+
+        if heading
+          tags << content_tag(
+            'h1',
+            fieldset_text(attribute),
+            merge_attributes(options[:legend_options], default: {class: 'govuk-fieldset__heading'})
+          )
+        else
+          tags << content_tag(
+            :span,
+            fieldset_text(attribute),
+            merge_attributes(options[:legend_options], default: {class: 'govuk-label'})
+          )
+        end
 
         if error_for? attribute
           tags << content_tag(
