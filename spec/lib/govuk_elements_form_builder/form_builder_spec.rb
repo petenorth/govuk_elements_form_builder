@@ -774,7 +774,6 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       specify 'it should add a insert a blank entry when include_blank is supplied' do
         expect(subject).to have_tag("select > option", text: blank_text, with: {value: ""})
       end
-
     end
 
   end
@@ -824,5 +823,28 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       })
     end
 
+  end
+
+  describe '#text_area_with_maxwords' do
+    let :word_count do
+      45
+    end
+
+    subject do
+      builder.text_area_with_maxwords \
+        :waste_transport,
+        maxwords: { count: word_count }
+    end
+
+    specify "outputs a textarea with correct data_attributes" do
+      expect(subject).to have_tag 'div', with: { class: %w(govuk-character-count), 'data-module' => "character-count", 'data-maxwords' => word_count } do
+        with_tag \
+          'textarea',
+          with: {
+            name: 'person[waste_transport]',
+            class: 'js-character-count'
+          }
+      end
+    end
   end
 end

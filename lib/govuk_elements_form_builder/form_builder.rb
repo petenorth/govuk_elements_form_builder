@@ -212,6 +212,15 @@ module GovukElementsFormBuilder
       end
     end
 
+    def text_area_with_maxwords(attribute, options = {})
+      maxwords = options.delete :maxwords || {}
+      maxword_count = maxwords.fetch :count, 50
+
+      content_tag :div, class: %w(govuk-character-count), 'data-module' => "character-count", 'data-maxwords' => maxword_count do
+        text_area attribute, **options, class: 'js-character-count'
+      end
+    end
+
     private
 
     # Gov.UK Design System date inputs require a fieldset containing
