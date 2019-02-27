@@ -307,12 +307,13 @@ module GovukElementsFormBuilder
 
     end
 
-    def set_label_classes! options
-      options ||= {}
+    def set_label_classes!(options = {})
       options[:label_options] ||= {}
-      options[:label_options].merge!(
+
+      return if options[:label_options].delete :overwrite_defaults!
+
+      options[:label_options].merge! \
         merge_attributes(options[:label_options], default: {class: 'govuk-label'})
-      )
     end
 
     def check_box_inputs attributes, options
