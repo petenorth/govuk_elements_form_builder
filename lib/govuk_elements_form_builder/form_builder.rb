@@ -33,15 +33,12 @@ module GovukElementsFormBuilder
         content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
           options = args.extract_options!
 
+          set_label_classes! options
           set_field_classes! options, attribute, [default_field_class]
 
-          if options.delete :no_label
-            label = ''
-          else
-            set_label_classes! options
-            label = label(attribute, options[:label_options])
-            add_hint :label, label, attribute
-          end
+          label = label(attribute, options[:label_options])
+
+          add_hint :label, label, attribute
 
           (label + super(attribute, options.except(:label, :label_options, :width))).html_safe
         end
@@ -312,6 +309,8 @@ module GovukElementsFormBuilder
 
     def set_label_classes!(options = {})
       options[:label_options] ||= {}
+
+      return if options[:label_options].delete :overwrite_defaults!
 
       options[:label_options].merge! \
         merge_attributes(options[:label_options], default: {class: 'govuk-label'})
