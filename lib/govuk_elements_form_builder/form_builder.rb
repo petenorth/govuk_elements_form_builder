@@ -79,9 +79,11 @@ module GovukElementsFormBuilder
       content_tag :div, class: form_group_classes(method), id: form_group_id(method) do
 
         html_options = args.extract_options!
+        label_options = html_options.delete(:label_options) || {}
+
         set_field_classes!(html_options, method, 'govuk-select')
 
-        label = label(method, class: "govuk-label")
+        label = label(method, { class: "govuk-label" }.merge(label_options))
         add_hint :label, label, method
 
         (label+ super(method, collection, value_method, text_method, options, html_options)).html_safe
