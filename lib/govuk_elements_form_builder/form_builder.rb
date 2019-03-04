@@ -480,13 +480,19 @@ module GovukElementsFormBuilder
     end
 
     def add_hint(tag, element, name)
-      hints = hint_text name
-      Array(hints).map { |hint| add_hint_span tag, element, hint }.join
-    end
+      hints = Array hint_text(name)
 
-    def add_hint_span(tag, element, hint)
-      hint_span = content_tag :span, hint, class: 'govuk-hint'
-      element.sub! "</#{tag}>", "#{hint_span}</#{tag}>".html_safe
+      hint_tags = hints.map do |hint|
+        content_tag :span, hint, class: 'govuk-hint'
+      end.join.html_safe
+
+      if element.include? 'class="govuk-error-message"'
+        element.sub! \
+          '<span class="govuk-error-message"',
+          %Q{#{hint_tags}<span class="govuk-error-message"}
+      else
+        element.sub! "</#{tag}>", "#{hint_tags}</#{tag}>".html_safe
+      end
     end
 
     def fieldset_text attribute
