@@ -338,7 +338,7 @@ module GovukElementsFormBuilder
         input = radio_button(
           attribute,
           value,
-          {class: 'govuk-radios__input'}.merge(options.slice('data-aria-controls'))
+          {class: 'govuk-radios__input'}.merge(options)
         )
         label = label(attribute, class: 'govuk-label govuk-radios__label', value: value) do |tag|
           if options.has_key? :text_method
