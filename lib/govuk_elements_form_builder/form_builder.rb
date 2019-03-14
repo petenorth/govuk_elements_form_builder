@@ -29,7 +29,7 @@ module GovukElementsFormBuilder
       # text_area is, as usual, a special case
       text_area: "govuk-textarea"
     }.each do |method_name, default_field_class|
-      define_method(method_name) do |attribute, *args|
+      define_method(method_name) do |attribute, *args, &block|
         content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
           options = args.extract_options!
 
@@ -40,7 +40,11 @@ module GovukElementsFormBuilder
 
           add_hint :label, label, attribute
 
-          (label + super(attribute, options.except(:label, :label_options, :width))).html_safe
+          block ||= proc { '' }
+
+          after_hint_markup = capture(self, &block)
+
+          (label + after_hint_markup + super(attribute, options.except(:label, :label_options, :width))).html_safe
         end
       end
     end
@@ -214,12 +218,12 @@ module GovukElementsFormBuilder
       end
     end
 
-    def text_area_with_maxwords(attribute, options = {})
+    def text_area_with_maxwords(attribute, options = {}, &block)
       maxwords = options.delete :maxwords || {}
       maxword_count = maxwords.fetch :count, 50
 
       content_tag :div, class: %w(govuk-character-count), 'data-module' => "character-count", 'data-maxwords' => maxword_count do
-        text_area attribute, **options, class: 'js-character-count'
+        text_area attribute, **options, class: 'js-character-count', &block
       end
     end
 
