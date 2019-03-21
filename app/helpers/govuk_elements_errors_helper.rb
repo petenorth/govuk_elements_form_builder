@@ -140,7 +140,7 @@ module GovukElementsErrorsHelper
   end
 
   def self.link_to_error object_prefixes, attribute
-    ['#error', *object_prefixes, attribute].join('_')
+    '#' + [*object_prefixes, attribute, 'container'].join('_')
   end
 
   def self.default_label attribute

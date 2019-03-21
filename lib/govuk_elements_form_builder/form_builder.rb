@@ -429,7 +429,7 @@ module GovukElementsFormBuilder
     end
 
     def form_group_id attribute
-      "error_#{attribute_prefix}_#{attribute}" if error_for? attribute
+      "#{attribute_prefix}_#{attribute}_container"
     end
 
     private_class_method def self.add_error_to_label! html_tag, object_name, object
