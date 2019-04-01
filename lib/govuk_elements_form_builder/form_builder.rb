@@ -49,6 +49,32 @@ module GovukElementsFormBuilder
       end
     end
 
+    def pounds_field(attribute, *args, &block)
+      content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
+        options = args.extract_options!
+
+        set_label_classes! options
+        set_field_classes! options, attribute, ['govuk-input']
+
+        label = label(attribute, options[:label_options])
+
+        add_hint :label, label, attribute
+
+        original_number_field = method(:number_field).super_method
+        rails_number_field = original_number_field.call(attribute, options.except(:label, :label_options, :width))
+
+        pound_sign = content_tag :div, class: 'govuk-currency-input__symbol' do
+          '£'
+        end
+
+        pounds_container = content_tag :div, class: 'govuk-currency-input' do
+          pound_sign + rails_number_field
+        end
+
+        (label + pounds_container).html_safe
+      end
+    end
+
     def radio_button_fieldset attribute, options={}, &block
       content_tag :div,
                   class: form_group_classes(attribute),
