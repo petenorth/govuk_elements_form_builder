@@ -81,8 +81,9 @@ module GovukElementsFormBuilder
                   id: form_group_id(attribute) do
         content_tag :fieldset, fieldset_options(attribute, options) do
           content_tag(:div, {class: "govuk-radios govuk-radios__inline govuk-radios--conditional", "data-module" => "radios"}) do
+
             safe_join([
-                        fieldset_legend(attribute, options, heading: true),
+                        fieldset_legend(attribute, options, heading: options.fetch(:fieldset_heading, true)),
                         block_given? ? capture(self, &block) : radio_inputs(attribute, options)
                       ], "\n")
           end
