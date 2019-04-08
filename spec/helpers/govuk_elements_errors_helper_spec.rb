@@ -61,7 +61,7 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
     it 'outputs the specific error message' do
       expect(pretty_output).to have_tag('div.govuk-error-summary') do
         with_tag 'ul.govuk-error-summary__list' do
-          with_tag 'a[href="#error_person_name"]', 'Full name is required'
+          with_tag 'a[href="#person_name_container"]', 'Full name is required'
         end
       end
     end
@@ -70,7 +70,7 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
       with_translations(:cy, translations) do
         expect(pretty_output).to have_tag('div.govuk-error-summary') do
           with_tag 'ul.govuk-error-summary__list' do
-            with_tag 'a[href="#error_person_name"]', 'Mae angen enw llawn'
+            with_tag 'a[href="#person_name_container"]', 'Mae angen enw llawn'
           end
         end
       end
@@ -82,7 +82,7 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
       it 'outputs the specific error message with correct anchoring' do
         expect(pretty_output).to have_tag('div.govuk-error-summary') do
           with_tag 'ul.govuk-error-summary__list' do
-            with_tag 'a[href="#error_steps_appeal_penalty_amount"]', 'Amount is required'
+            with_tag 'a[href="#steps_appeal_penalty_amount_container"]', 'Amount is required'
           end
         end
       end
@@ -109,7 +109,7 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
       expect(pretty_output).to have_tag('div.govuk-error-summary') do
         with_tag 'ul.govuk-error-summary__list' do
           with_tag(
-            'a[href="#error_person_address_attributes_postcode"]',
+            'a[href="#person_address_attributes_postcode_container"]',
             'Postcode is required'
           )
         end
@@ -121,7 +121,7 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
         expect(pretty_output).to have_tag('div.govuk-error-summary') do
           with_tag 'ul.govuk-error-summary__list' do
             with_tag(
-              'a[href="#error_person_address_attributes_postcode"]',
+              'a[href="#person_address_attributes_postcode_container"]',
               'Mae angen cod post'
             )
           end
@@ -152,7 +152,7 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
       expect(pretty_output).to have_tag('div.govuk-error-summary') do
         with_tag 'ul.govuk-error-summary__list' do
           with_tag(
-            'a[href="#error_person_address_attributes_country_attributes_name"]',
+            'a[href="#person_address_attributes_country_attributes_name_container"]',
             'Country is required'
           )
         end
@@ -164,7 +164,7 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
         expect(pretty_output).to have_tag('div.govuk-error-summary') do
           with_tag 'ul.govuk-error-summary__list' do
             with_tag(
-              'a[href="#error_person_address_attributes_country_attributes_name"]',
+              'a[href="#person_address_attributes_country_attributes_name_container"]',
               'Mae angen Gwlad'
             )
           end
@@ -193,7 +193,7 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
     end
 
     it 'produces error message, and does not get stuck in infinite loop' do
-      expect(pretty_output).to include('<a href="#error_case_name">Name is required</a>')
+      expect(pretty_output).to include('<a href="#case_name_container">Name is required</a>')
     end
   end
 
@@ -203,8 +203,8 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
     end
 
     it 'creates separate error messages for resources in array' do
-      expect(pretty_output).to include('<a href="#error_case_name">Name is required</a>')
-      expect(pretty_output).to include('<a href="#error_case_case_attributes_name">Name is required</a>')
+      expect(pretty_output).to include('<a href="#case_name_container">Name is required</a>')
+      expect(pretty_output).to include('<a href="#case_case_attributes_name_container">Name is required</a>')
     end
   end
 

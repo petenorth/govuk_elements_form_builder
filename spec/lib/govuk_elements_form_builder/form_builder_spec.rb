@@ -147,13 +147,13 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       before {resource.valid?}
 
       specify 'input has correct error class' do
-        expect(subject).to have_tag("#error_person_#{attribute}.govuk-form-group--error") do |fge|
+        expect(subject).to have_tag("#person_#{attribute}_container.govuk-form-group--error") do |fge|
           expect(fge).to have_tag("#{element}.govuk-input--error")
         end
       end
 
       specify 'error message is displayed within the label' do
-        expect(subject).to have_tag("#error_person_#{attribute}.govuk-form-group--error") do |fge|
+        expect(subject).to have_tag("#person_#{attribute}_container.govuk-form-group--error") do |fge|
           expect(fge).to have_tag('label', text: /Full name/, with: {for: "person_#{attribute}"}) do |label|
             expect(label).to have_tag('span', text: 'Full name is required')
           end
@@ -188,7 +188,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
             # a before block
             resource.valid?
 
-            expect(builder.send(method, attribute)).to have_tag("#error_person_#{attribute}.govuk-form-group--error") do |fge|
+            expect(builder.send(method, attribute)).to have_tag("#person_#{attribute}_container.govuk-form-group--error") do |fge|
               expect(fge).to have_tag('span', text: message)
             end
 
