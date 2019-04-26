@@ -254,6 +254,10 @@ module GovukElementsFormBuilder
       end
     end
 
+    def form_group_id attribute
+      "#{attribute_prefix}_#{attribute}_container"
+    end
+
     private
 
     # Gov.UK Design System date inputs require a fieldset containing
@@ -453,10 +457,6 @@ module GovukElementsFormBuilder
 
     def attribute_prefix
       self.class.attribute_prefix(@object_name)
-    end
-
-    def form_group_id attribute
-      "#{attribute_prefix}_#{attribute}_container"
     end
 
     private_class_method def self.add_error_to_label! html_tag, object_name, object
