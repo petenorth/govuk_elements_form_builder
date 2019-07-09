@@ -400,7 +400,7 @@ module GovukElementsFormBuilder
 
         if heading
           tags << content_tag(
-            'h1',
+            'h2',
             fieldset_text(attribute),
             merge_attributes(options[:legend_options], default: {class: 'govuk-fieldset__heading'})
           )
