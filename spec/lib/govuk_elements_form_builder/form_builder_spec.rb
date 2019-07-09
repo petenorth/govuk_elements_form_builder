@@ -443,7 +443,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       end
 
       specify 'should be propagated down to the inner legend when provided' do
-        expect(subject).to have_tag("legend > h1.govuk-fieldset__heading.#{custom_class}", with: {lang: language})
+        expect(subject).to have_tag("legend > h2.govuk-fieldset__heading.#{custom_class}", with: {lang: language})
       end
 
     end
@@ -501,7 +501,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
     specify 'fieldset has the correct heading' do
       text = I18n.t('helpers.fieldset.person[waste_transport_attributes].waste_transport')
-      expect(subject).to have_tag('fieldset legend > h1.govuk-fieldset__heading', text)
+      expect(subject).to have_tag('fieldset legend > h2.govuk-fieldset__heading', text)
     end
 
     specify 'outputs checkboxes with labels' do
