@@ -815,32 +815,32 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
     context 'autocompletion' do
       subject {builder.date_field(:created_at, date_of_birth: true)}
 
-      specify "day should have autocomplete value of 'bday-day'" do
+      specify "day should have autocomplete value of 'bday bday-day'" do
         expect(subject).to have_tag(
           'input',
           with: {
             id: 'person_created_at_3i',
-            autocomplete: 'bday-day'
+            autocomplete: 'bday bday-day'
           }
         )
       end
 
-      specify "month should have autocomplete value of 'bday-month'" do
+      specify "month should have autocomplete value of 'bday bday-month'" do
         expect(subject).to have_tag(
           'input',
           with: {
             id: 'person_created_at_2i',
-            autocomplete: 'bday-month'
+            autocomplete: 'bday bday-month'
           }
         )
       end
 
-      specify "year should have autocomplete value of 'bday-year'" do
+      specify "year should have autocomplete value of 'bday bday-year'" do
         expect(subject).to have_tag(
           'input',
           with: {
             id: 'person_created_at_1i',
-            autocomplete: 'bday-year'
+            autocomplete: 'bday bday-year'
           }
         )
       end

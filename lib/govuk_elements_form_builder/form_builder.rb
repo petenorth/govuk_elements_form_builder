@@ -266,9 +266,9 @@ module GovukElementsFormBuilder
     def date_input_form_group(attribute, segment: :day, width: 2, date_of_birth:)
       segments = {day: '3i', month: '2i', year: '1i'}
       autocomplete_segments = {
-        day: 'bday-day',
-        month: 'bday-month',
-        year: 'bday-year'
+        day: 'bday bday-day',
+        month: 'bday bday-month',
+        year: 'bday bday-year'
       }
 
       content_tag(:div, class: %w{govuk-date-input__item}) do
