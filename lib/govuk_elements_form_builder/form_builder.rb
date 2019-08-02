@@ -223,16 +223,16 @@ module GovukElementsFormBuilder
       super(value, {class: "govuk-button"}.merge(options))
     end
 
-    def date_field(attribute, options = {})
+    def date_field(attribute, options = {}, date_of_birth: false)
       content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
         content_tag :fieldset, fieldset_options(attribute, options) do
 
           date_inputs = content_tag(:div, class: 'govuk-date-input') do |di|
 
             safe_join([
-              date_input_form_group(attribute, segment: :day),
-              date_input_form_group(attribute, segment: :month),
-              date_input_form_group(attribute, segment: :year, width: 4)
+              date_input_form_group(attribute, segment: :day, date_of_birth: date_of_birth),
+              date_input_form_group(attribute, segment: :month, date_of_birth: date_of_birth),
+              date_input_form_group(attribute, segment: :year, width: 4, date_of_birth: date_of_birth)
             ])
 
           end
@@ -263,8 +263,14 @@ module GovukElementsFormBuilder
     # Gov.UK Design System date inputs require a fieldset containing
     # separate number inputs for Day, Month and Year. Rails' handling
     # requires they are named with 3i, 2i and 1i prefix respectively
-    def date_input_form_group(attribute, segment: :day, width: 2)
+    def date_input_form_group(attribute, segment: :day, width: 2, date_of_birth:)
       segments = {day: '3i', month: '2i', year: '1i'}
+      autocomplete_segments = {
+        day: 'bday-day',
+        month: 'bday-month',
+        year: 'bday-year'
+      }
+
       content_tag(:div, class: %w{govuk-date-input__item}) do
 
         date_input_options = {
@@ -272,6 +278,10 @@ module GovukElementsFormBuilder
           type: 'number',
           pattern: '[0-9]*',
         }
+
+        if date_of_birth
+          date_input_options[:autocomplete] = autocomplete_segments[segment]
+        end
 
         attribute_segment = "#{attribute}(#{segments[segment]})"
         input_name = "#{attribute_prefix}[#{attribute_segment}]"
