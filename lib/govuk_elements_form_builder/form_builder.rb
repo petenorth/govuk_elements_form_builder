@@ -223,17 +223,21 @@ module GovukElementsFormBuilder
       super(value, {class: "govuk-button"}.merge(options))
     end
 
-    def date_field(attribute, options = {}, date_of_birth: false)
+    def date_field(attribute, date_of_birth: false, readonly: false, disabled: false, **options)
       content_tag :div, class: form_group_classes(attribute), id: form_group_id(attribute) do
         content_tag :fieldset, fieldset_options(attribute, options) do
 
           date_inputs = content_tag(:div, class: 'govuk-date-input') do |di|
 
-            safe_join([
-              date_input_form_group(attribute, segment: :day, date_of_birth: date_of_birth),
-              date_input_form_group(attribute, segment: :month, date_of_birth: date_of_birth),
-              date_input_form_group(attribute, segment: :year, width: 4, date_of_birth: date_of_birth)
-            ])
+            with_options(date_of_birth: date_of_birth, readonly: readonly,
+              disabled: disabled) do |frm|
+
+              safe_join([
+                frm.date_input_form_group(attribute, segment: :day),
+                frm.date_input_form_group(attribute, segment: :month),
+                frm.date_input_form_group(attribute, segment: :year, width: 4)
+              ])
+            end
 
           end
 
@@ -263,7 +267,7 @@ module GovukElementsFormBuilder
     # Gov.UK Design System date inputs require a fieldset containing
     # separate number inputs for Day, Month and Year. Rails' handling
     # requires they are named with 3i, 2i and 1i prefix respectively
-    def date_input_form_group(attribute, segment: :day, width: 2, date_of_birth:)
+    def date_input_form_group(attribute, segment: :day, width: 2, date_of_birth:, **options)
       segments = {day: '3i', month: '2i', year: '1i'}
       autocomplete_segments = {
         day: 'bday bday-day',
@@ -294,7 +298,7 @@ module GovukElementsFormBuilder
             name: input_name,
             value: input_value,
             id: input_id
-          })
+          }).merge(options)
 
         input_label = content_tag \
           :label,
