@@ -845,6 +845,74 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
         )
       end
     end
+
+    context 'readonly' do
+      subject {builder.date_field(:created_at, readonly: true)}
+
+      specify "day should have readonly attribute" do
+        expect(subject).to have_tag(
+          'input',
+          with: {
+            id: 'person_created_at_3i',
+            readonly: 'readonly'
+          }
+        )
+      end
+
+      specify "month should have readonly attribute" do
+        expect(subject).to have_tag(
+          'input',
+          with: {
+            id: 'person_created_at_2i',
+            readonly: 'readonly'
+          }
+        )
+      end
+
+      specify "year should have readonly attribute" do
+        expect(subject).to have_tag(
+          'input',
+          with: {
+            id: 'person_created_at_1i',
+            readonly: 'readonly'
+          }
+        )
+      end
+    end
+
+    context 'disabled' do
+      subject {builder.date_field(:created_at, disabled: true)}
+
+      specify "day should have disabled attribute" do
+        expect(subject).to have_tag(
+          'input',
+          with: {
+            id: 'person_created_at_3i',
+            disabled: 'disabled'
+          }
+        )
+      end
+
+      specify "month should have disabled attribute" do
+        expect(subject).to have_tag(
+          'input',
+          with: {
+            id: 'person_created_at_2i',
+            disabled: 'disabled'
+          }
+        )
+      end
+
+      specify "year should have disabled attribute" do
+        expect(subject).to have_tag(
+          'input',
+          with: {
+            id: 'person_created_at_1i',
+            disabled: 'disabled'
+          }
+        )
+      end
+    end
   end
 
   describe '#submit' do
