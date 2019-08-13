@@ -76,11 +76,19 @@ module GovukElementsFormBuilder
     end
 
     def radio_button_fieldset attribute, options={}, &block
+      classes = %w(govuk-radios govuk-radios__inline)
+      if options[:small]
+        classes << 'govuk-radios--small'
+      else
+        classes << 'govuk-radios--conditional'
+      end
+      classes << 'govuk-radios--inline' if options[:inline]
+
       content_tag :div,
                   class: form_group_classes(attribute),
                   id: form_group_id(attribute) do
         content_tag :fieldset, fieldset_options(attribute, options) do
-          content_tag(:div, {class: "govuk-radios govuk-radios__inline govuk-radios--conditional", "data-module" => "radios"}) do
+          content_tag(:div, {class: classes.join(' '), "data-module" => "radios"}) do
 
             safe_join([
                         fieldset_legend(attribute, options, heading: options.fetch(:fieldset_heading, true)),
