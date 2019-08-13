@@ -405,14 +405,27 @@ module GovukElementsFormBuilder
 
     def fieldset_legend(attribute, options, heading: false)
       heading = options[:heading] || heading
+      page_heading = options[:page_heading]
 
       legend_classes = %w{govuk-fieldset__legend}
-      legend_classes << 'govuk-fieldset__legend--m' if heading
+
+      if page_heading
+        legend_classes << 'govuk-fieldset__legend--l'
+      elsif heading
+        legend_classes << 'govuk-fieldset__legend--m'
+      end
+
       legend = content_tag('legend', class: legend_classes) do
 
         tags = []
 
-        if heading
+        if page_heading
+          tags << content_tag(
+            'h1',
+            fieldset_text(attribute),
+            merge_attributes(options[:legend_options], default: {class: 'govuk-fieldset__heading'})
+          )
+        elsif heading
           tags << content_tag(
             'h2',
             fieldset_text(attribute),
