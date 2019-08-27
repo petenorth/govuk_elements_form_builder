@@ -36,7 +36,12 @@ module GovukElementsFormBuilder
           set_label_classes! options
           set_field_classes! options, attribute, [default_field_class]
 
-          label = label(attribute, options[:label_options])
+          label_text = options.dig(:label_options, :text)
+          if label_text
+            label = label(attribute, label_text, options[:label_options])
+          else
+            label = label(attribute, options[:label_options])
+          end
 
           add_hint :label, label, attribute
 
@@ -379,7 +384,7 @@ module GovukElementsFormBuilder
       attributes.map do |attribute|
         input = check_box(attribute, {class: "govuk-checkboxes__input"}.merge(options))
         label = label(attribute, class: "govuk-label govuk-checkboxes__label") do |tag|
-          localized_label("#{attribute}")
+          options.dig(:label_options, :text) || localized_label("#{attribute}")
         end
         content_tag :div, {class: 'govuk-checkboxes__item'}.merge(options.slice(:class, 'data-aria-controls')) do
           input + label

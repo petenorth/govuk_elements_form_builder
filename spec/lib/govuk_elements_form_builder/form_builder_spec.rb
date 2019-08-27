@@ -541,6 +541,25 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       end
     end
 
+    context 'label options' do
+      subject do
+        builder.fields_for(:waste_transport) do |f|
+          f.check_box_fieldset :waste_transport, %i(animal_carcasses mines_quarries farm_agricultural) do |fieldset|
+            fieldset.safe_join([
+              fieldset.check_box_input(:animal_carcasses, label_options: { text: 'Over written label' }),
+              fieldset.check_box_input(:mines_quarries) { f.text_field :mines_quarries_details },
+              fieldset.check_box_input(:farm_agricultural) { f.text_field :farm_agricultural_details }
+            ])
+          end
+        end
+      end
+
+      specify 'Over writes the labe' do
+        expect(subject).to have_tag 'label', with: { for: 'person_waste_transport_attributes_animal_carcasses' }, text: 'Over written label'
+        expect(subject).to have_tag 'label', with: {for: 'person_waste_transport_attributes_mines_quarries'}, text: 'Waste from mines or quarries (> 200 lbs)'
+        expect(subject).to have_tag 'label', with: { for: 'person_waste_transport_attributes_farm_agricultural' }, text: 'Farm or agricultural waste'
+      end
+    end
 
     context 'revealing panels' do
 
