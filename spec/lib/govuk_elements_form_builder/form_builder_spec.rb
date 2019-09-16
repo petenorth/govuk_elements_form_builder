@@ -342,9 +342,11 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
 
       specify 'outputs yes/no choices' do
         expect(subject).to have_tag('.govuk-form-group > fieldset') do |fieldset|
-          expect(fieldset).to have_tag('div.govuk-radios__item > input', count: 2, with: {type: 'radio'})
-          expect(fieldset).to have_tag('input', with: {value: 'no'})
-          expect(fieldset).to have_tag('input', with: {value: 'yes'})
+          expect(fieldset).to have_tag('div', with: { class: 'govuk-radios', 'data-module' => 'govuk-radios' }) do |radios|
+            expect(radios).to have_tag('div.govuk-radios__item > input', count: 2, with: {type: 'radio'})
+            expect(radios).to have_tag('input', with: {value: 'no'})
+            expect(radios).to have_tag('input', with: {value: 'yes'})
+          end
         end
       end
 
@@ -921,7 +923,8 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
     specify "outputs an input tag with the correct classes" do
       expect(subject).to have_tag('input', with: {
         class: 'govuk-button',
-        type: 'submit'
+        type: 'submit',
+        'data-module': 'govuk-button'
       })
     end
 
@@ -939,12 +942,12 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
     end
 
     specify "outputs a textarea with correct data_attributes" do
-      expect(subject).to have_tag 'div', with: { class: %w(govuk-character-count), 'data-module' => "character-count", 'data-maxwords' => word_count } do
+      expect(subject).to have_tag 'div', with: { class: %w(govuk-character-count), 'data-module' => "govuk-character-count", 'data-maxwords' => word_count } do
         with_tag \
           'textarea',
           with: {
             name: 'person[waste_transport]',
-            class: 'js-character-count'
+            class: 'govuk-js-character-count'
           }
       end
     end

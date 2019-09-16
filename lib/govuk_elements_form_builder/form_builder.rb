@@ -88,7 +88,7 @@ module GovukElementsFormBuilder
                   class: form_group_classes(attribute),
                   id: form_group_id(attribute) do
         content_tag :fieldset, fieldset_options(attribute, options) do
-          content_tag(:div, {class: classes.join(' '), "data-module" => "radios"}) do
+          content_tag(:div, {class: classes.join(' '), "data-module" => "govuk-radios"}) do
 
             safe_join([
                         fieldset_legend(attribute, options, heading: options.fetch(:fieldset_heading, true)),
@@ -104,7 +104,7 @@ module GovukElementsFormBuilder
                   class: form_group_classes(attributes),
                   id: form_group_id(attributes) do
         content_tag :fieldset, fieldset_options(attributes, options) do
-          content_tag(:div, {class: "govuk-checkboxes", "data-module" => "checkboxes"}) do
+          content_tag(:div, {class: "govuk-checkboxes", "data-module" => "govuk-checkboxes"}) do
             safe_join([
                         fieldset_legend(legend_key, options, heading: true),
                         block_given? ? capture(self, &block) : check_box_inputs(attributes, options)
@@ -125,7 +125,7 @@ module GovukElementsFormBuilder
         label = label(method, { class: "govuk-label" }.merge(label_options))
         add_hint :label, label, method
 
-        (label+ super(method, collection, value_method, text_method, options, html_options)).html_safe
+        (label + super(method, collection, value_method, text_method, options, html_options)).html_safe
       end
     end
 
@@ -228,7 +228,7 @@ module GovukElementsFormBuilder
     end
 
     def submit(value = nil, options = {})
-      super(value, {class: "govuk-button"}.merge(options))
+      super(value, {class: "govuk-button", data: { module: 'govuk-button' }}.merge(options))
     end
 
     def date_field(attribute, date_of_birth: false, readonly: false, disabled: false, **options)
@@ -261,8 +261,8 @@ module GovukElementsFormBuilder
       maxwords = options.delete :maxwords || {}
       maxword_count = maxwords.fetch :count, 50
 
-      content_tag :div, class: %w(govuk-character-count), 'data-module' => "character-count", 'data-maxwords' => maxword_count do
-        text_area attribute, **options, class: 'js-character-count', &block
+      content_tag :div, class: %w(govuk-character-count), 'data-module' => "govuk-character-count", 'data-maxwords' => maxword_count do
+        text_area attribute, **options, class: 'govuk-js-character-count', &block
       end
     end
 
