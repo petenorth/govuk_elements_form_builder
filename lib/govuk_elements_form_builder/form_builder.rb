@@ -76,7 +76,7 @@ module GovukElementsFormBuilder
     end
 
     def radio_button_fieldset attribute, options={}, &block
-      classes = %w(govuk-radios govuk-radios__inline)
+      classes = %w(govuk-radios)
       if options[:small]
         classes << 'govuk-radios--small'
       else
