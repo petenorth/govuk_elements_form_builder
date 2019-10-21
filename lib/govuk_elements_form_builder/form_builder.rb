@@ -119,7 +119,7 @@ module GovukElementsFormBuilder
       end
     end
 
-    def collection_select(method, collection, value_method, text_method, options = {}, *args)
+    def collection_select(method, collection, value_method, text_method, options = {}, *args, &block)
       content_tag :div, class: form_group_classes(method), id: form_group_id(method) do
 
         html_options = args.extract_options!
@@ -130,7 +130,14 @@ module GovukElementsFormBuilder
         label = label(method, { class: "govuk-label" }.merge(label_options))
         add_hint :label, label, method
 
-        (label+ super(method, collection, value_method, text_method, options, html_options)).html_safe
+
+        block ||= proc { '' }
+
+        after_hint_markup = capture(self, &block)
+        puts 'here' * 80
+        puts after_hint_markup
+
+        (label + after_hint_markup + super(method, collection, value_method, text_method, options, html_options)).html_safe
       end
     end
 
