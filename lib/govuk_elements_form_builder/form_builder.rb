@@ -35,8 +35,9 @@ module GovukElementsFormBuilder
 
           set_label_classes! options
           set_field_classes! options, attribute, [default_field_class]
-
-          label = label(attribute, options[:label_options])
+          
+          label_text = options.dig(:label_options, :text)
+          label = label(attribute, label_text, options[:label_options].except(:text))
 
           add_hint :label, label, attribute
 
