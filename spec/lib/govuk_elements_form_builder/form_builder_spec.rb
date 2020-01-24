@@ -91,6 +91,15 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
           expect(subject).to have_tag("label", with: label_options)
         end
       end
+      
+      context 'custom label text' do
+        let(:label_options) {{text: 'Custom label'}}
+        subject { builder.send(method, :name, label_options: label_options) }
+        
+        specify 'shows custom label text' do
+          expect(subject).to have_tag("label", text: 'Custom label')
+        end
+      end
 
     end
 
