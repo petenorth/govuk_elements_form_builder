@@ -960,5 +960,17 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
           }
       end
     end
+
+    specify "outputs a hint field showing word count limit" do
+      expect(subject).to have_tag 'div', with: { class: %w(govuk-character-count), 'data-module' => "govuk-character-count", 'data-maxwords' => word_count } do
+        with_tag \
+          'span',
+          text: "You can enter up to #{word_count} words",
+          with: {
+            id: 'person_waste_transport-info',
+            class: 'govuk-character-count__message'
+          }
+      end
+    end
   end
 end

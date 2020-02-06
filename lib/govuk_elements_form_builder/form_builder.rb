@@ -263,11 +263,17 @@ module GovukElementsFormBuilder
     end
 
     def text_area_with_maxwords(attribute, options = {}, &block)
+      count_node = "#{sanitized_object_name}_#{sanitized_method_name(attribute)}-info"
       maxwords = options.delete :maxwords || {}
       maxword_count = maxwords.fetch :count, 50
+      maxword_msg = "You can enter up to #{maxword_count} words"
+
+      options[:class] = [options[:class], 'govuk-js-character-count'].compact.join(' ')
+      options[:'aria-describedby'] = count_node
 
       content_tag :div, class: %w(govuk-character-count), 'data-module' => "govuk-character-count", 'data-maxwords' => maxword_count do
-        text_area attribute, **options, class: 'govuk-js-character-count', &block
+        text_area(attribute, **options, &block) +
+        content_tag(:span, maxword_msg, id: count_node, class: 'govuk-hint govuk-character-count__message', 'aria-live': 'polite')
       end
     end
 
@@ -604,6 +610,14 @@ module GovukElementsFormBuilder
 
     def localized scope, attribute, default
       self.class.localized scope, attribute, default, @object_name
+    end
+
+    def sanitized_object_name
+      @sanitized_object_name ||= @object_name.to_s.gsub(/\]\[|[^-a-zA-Z0-9:.]/, "_").sub(/_$/, "")
+    end
+
+    def sanitized_method_name(method_name)
+      method_name.to_s.sub(/\?$/, "")
     end
 
   end
