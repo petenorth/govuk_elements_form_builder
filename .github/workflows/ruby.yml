@@ -17,5 +17,5 @@ jobs:
     - name: Build and test with Rake
       run: |
         sudo apt-get install libsqlite3-dev libxml2-dev libxslt-dev
-        bundle install --jobs 4 --retry 3
+        bundle install
         bundle exec rspec spec
